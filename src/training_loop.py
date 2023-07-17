@@ -9,12 +9,12 @@ from torch import nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from .accuracy import accuracy
 from .checkpoint import create_checkpoints
-from .log import log
-from .pr_metrics import pr_metrics
-from .running_extrema import RunningExtrema, MAX, MIN
-from .score_matrix import get_score_matrix
+from .eval_util.score_matrix import get_score_matrix
+from .metrics.accuracy import accuracy
+from .metrics.pr_metrics import pr_metrics
+from .train_utils.log import log
+from .train_utils.running_extrema import RunningExtrema, MAX, MIN
 
 
 class TrainingLoop:
@@ -117,6 +117,11 @@ class TrainingLoop:
             get_embeddings_fn=self.get_embeddings_fn,
         )
         val_log_dict = pr_metrics(scores, quer_labels, gal_labels)
+
+        # Compute top-1 accuracy
+        val_log_dict.update({
+            'Accuracy': accuracy(scores, quer_labels, gal_labels)
+        })
 
         # Log validation metrics
         log(val_log_dict, epoch_idx=self.epoch_idx, section='Val')

@@ -1,47 +1,45 @@
-from collections import OrderedDict
+from typing import Optional
 
 import torch
 from torch import nn
-from torch.nn import Sequential, Linear
 from torchvision import models
+from torchvision.models._api import Weights
+
+from .train_utils.classifier_ops import update_classifier,\
+    split_backbone_classifier, get_ultimate_classifier
 
 
 class Recognizer(nn.Module):
-    def __init__(self, model_name, weights, num_classes):
+    def __init__(
+        self,
+        model_name: str,
+        num_classes: int,
+        weights: Optional[Weights] = None,
+        clf_bias: bool = False,
+    ):
         super().__init__()
 
         model = getattr(models, model_name)(weights=weights)
-        embedding_dim = model.fc.in_features
+        update_classifier(model, num_classes, bias=clf_bias)
 
-        self.model = Sequential(OrderedDict(list(model.named_children())[:-1]))
-        self.fc = Linear(
-            in_features=embedding_dim,
-            out_features=num_classes,
-            bias=False
-        )
+        self.backbone, self.classifier = split_backbone_classifier(model)
+        self._ult_clf = get_ultimate_classifier(self.classifier)
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor):
         if self.training:
-            return self.get_logits(x)
-        else:
-            return self.get_embeddings(x)
+            self._normalize_clf_layer()
 
-    def get_embeddings(self, x):
-        x = self.model(x)
+        x = self.backbone(x)
         x = x / torch.norm(x, dim=1, keepdim=True)
-        x = torch.flatten(x, start_dim=1)
+
+        if self.training:
+            x = self.classifier(x)
+
         return x
 
-    def get_logits(self, x):
-        embs = self.get_embeddings(x)
-        logits = self.get_logits_from_embeddings(embs)
-        return logits
-
-    def get_logits_from_embeddings(self, embeddings):
-        if self.training:
-            # Normalize weights
-            self.fc.weight.data = (self.fc.weight.data
-                                   / torch.norm(self.fc.weight.data, dim=1,
-                                                keepdim=True))
-
-        return self.fc(embeddings)
+    def _normalize_clf_layer(self):
+        self._ult_clf.weight.data = (
+            self._ult_clf.weight.data
+            / torch.norm(self._ult_clf.weight.data, dim=1,
+                         keepdim=True)
+        )
