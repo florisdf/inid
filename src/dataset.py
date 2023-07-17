@@ -2,10 +2,15 @@ import pandas as pd
 from PIL import Image
 from torch.utils.data import Dataset
 
-from .config import DATA_CSV_PTRN, TRAIN_SUBSET, TEST_SUBSET, QUERY_SUBSET,\
-    GALLERY_SUBSET, LABEL_KEY, IMAGE_KEY
-from .gallery_query_split import split_gallery_query_random
-from .k_fold import label_based_k_fold_trainval_split
+from .data_utils.gallery_query_split import split_gallery_query_random
+from .data_utils.k_fold import label_based_k_fold_trainval_split
+
+
+DATA_CSV_PTRN = 'data-{}_split.csv'
+TRAIN_SUBSET = 'train'
+TEST_SUBSET = 'test'
+QUERY_SUBSET = 'val_query'
+GALLERY_SUBSET = 'val_gallery'
 
 
 class RecogDataset(Dataset):
@@ -17,6 +22,8 @@ class RecogDataset(Dataset):
         n_refs=5, rand_ref_seed=15,
         num_folds=5, val_fold=0,
         k_fold_seed=15,
+        label_key='label',
+        image_key='image',
     ):
         """
         Args:
@@ -45,9 +52,11 @@ class RecogDataset(Dataset):
         self.transform = transform
         self.label_to_idx = {
             label: label_idx
-            for label_idx, label in enumerate(df[LABEL_KEY].unique())
+            for label_idx, label in enumerate(df[label_key].unique())
         }
         self.subset = subset
+        self.label_key = label_key
+        self.image_key = image_key
 
         if not is_test:
             df_train, df_val = label_based_k_fold_trainval_split(
@@ -70,8 +79,8 @@ class RecogDataset(Dataset):
 
     def __getitem__(self, idx):
         row = self.df.iloc[idx]
-        im = Image.open(row[IMAGE_KEY])
-        label = self.label_to_idx[row[LABEL_KEY]]
+        im = Image.open(row[self.image_key])
+        label = self.label_to_idx[row[self.label_key]]
 
         if self.transform is not None:
             im = self.transform(im)

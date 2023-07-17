@@ -1,91 +1,132 @@
-import torch
-from torch.utils.data import DataLoader
+import logging
+from pathlib import Path
+from typing import Optional, List, Callable
 
-from .src.model import Recognizer
-from .src.dataset import RecogDataset
+import torch
+from torch import nn
+from torch.optim import Optimizer
+from torch.optim.lr_scheduler import LRScheduler
+from torch.utils.data import DataLoader
+from torchvision.models._api import Weights
+
+from .src.recognizer import Recognizer
+from .src.dataset import RecogDataset, TRAIN_SUBSET, QUERY_SUBSET,\
+    GALLERY_SUBSET
 from .src.training_loop import TrainingLoop
 
 
 def run_training(
-    model_name, model_weights, trainable_layers,
+    model_name: str,
+    model_weights: Optional[Weights],
+    trainable_layers: List[str],
 
-    loss_fn,
-    lr_scheduler,
-    optimizer,
+    loss_fn: nn.Module,
+    lr_scheduler: LRScheduler,
+    optimizer: Optimizer,
 
-    device,
+    device: torch.device,
 
-    best_metric,
-    is_higher_better,
-    ckpts_path,
-    run_name,
+    best_metric: str,
+    is_higher_better: bool,
+    ckpts_path: Path,
+    run_name: str,
 
-    val_fold,
-    num_folds=5,
-    k_fold_seed=15,
-    tfm_train=None,
-    tfm_val=None,
+    val_fold: int,
+    num_folds: int,
+    k_fold_seed: int,
+    tfm_train: Optional[Callable],
+    tfm_val: Optional[Callable],
 
-    num_epochs=100,
-    batch_size=100,
-    val_batch_size=100,
-    num_workers=10,
+    num_epochs: int,
+    batch_size: int,
+    val_batch_size: int,
+    num_workers: int,
 
-    load_ckpt=None,
-    save_last=False,
-    save_best=False,
+    load_ckpt: Optional[Path],
+    save_last: bool,
+    save_best: bool,
 ):
-    ds_train = RecogDataset(subset='train', transform=tfm_train,
-                            val_fold=val_fold,
-                            num_folds=num_folds, k_fold_seed=k_fold_seed)
-    ds_gal = RecogDataset(subset='val_gallery', transform=tfm_val,
-                          val_fold=val_fold,
-                          num_folds=num_folds, k_fold_seed=k_fold_seed)
-    ds_quer = RecogDataset(subset='val_query', transform=tfm_val,
-                           val_fold=val_fold,
-                           num_folds=num_folds, k_fold_seed=k_fold_seed)
+    # Create datasets
+    ds_train = RecogDataset(
+        subset=TRAIN_SUBSET, transform=tfm_train,
+        val_fold=val_fold,
+        num_folds=num_folds,
+        k_fold_seed=k_fold_seed
+    )
+    ds_gal = RecogDataset(
+        subset=GALLERY_SUBSET, transform=tfm_val,
+        val_fold=val_fold,
+        num_folds=num_folds,
+        k_fold_seed=k_fold_seed
+    )
+    ds_quer = RecogDataset(
+        subset=QUERY_SUBSET, transform=tfm_val,
+        val_fold=val_fold,
+        num_folds=num_folds,
+        k_fold_seed=k_fold_seed
+    )
 
-    dl_train = DataLoader(ds_train, batch_size=batch_size, shuffle=True,
-                          num_workers=num_workers)
-    dl_val_gal = DataLoader(ds_gal, batch_size=val_batch_size, shuffle=False,
-                            num_workers=num_workers)
-    dl_val_quer = DataLoader(ds_quer, batch_size=val_batch_size, shuffle=False,
-                             num_workers=num_workers)
+    # Create data loaders
+    dl_train = DataLoader(
+        ds_train,
+        batch_size=batch_size,
+        shuffle=True,
+        num_workers=num_workers
+    )
+    dl_val_gal = DataLoader(
+        ds_gal,
+        batch_size=val_batch_size,
+        shuffle=False,
+        num_workers=num_workers
+    )
+    dl_val_quer = DataLoader(
+        ds_quer,
+        batch_size=val_batch_size,
+        shuffle=False,
+        num_workers=num_workers
+    )
 
-    num_classes = len(dl_train.dataset.label_to_idx)
-    model = Recognizer(model_name, model_weights, num_classes)
+    # Create model
+    num_classes = len(ds_train.label_to_idx)
+    model = Recognizer(
+        model_name=model_name,
+        num_classes=num_classes,
+        model_weights=model_weights
+    )
 
-    for param in model.parameters():
+    # Freeze parameters
+    for param in model.backbone.parameters():
         param.requires_grad = False
     for layer in trainable_layers:
-        getattr(model.model, layer).requires_grad_(True)
+        getattr(model.backbone, layer).requires_grad_(True)
 
+    # Load checkpoint
     if load_ckpt is not None:
         model.load_state_dict(torch.load(load_ckpt))
 
     model = model.to(device)
 
+    # Start  training
     training_loop = TrainingLoop(
-        model,
-        optimizer,
-        lr_scheduler,
-        device,
-        num_epochs,
-        dl_train,
-        dl_val_gal,
-        dl_val_quer,
-        save_last,
-        save_best,
-        best_metric,
-        is_higher_better,
-        ckpts_path,
-        run_name,
+        model=model,
+        optimizer=optimizer,
+        lr_scheduler=lr_scheduler,
+        device=device,
+        num_epochs=num_epochs,
+        dl_train=dl_train,
+        dl_val_gal=dl_val_gal,
+        dl_val_quer=dl_val_quer,
+        save_last=save_last,
+        save_best=save_best,
+        best_metric=best_metric,
+        is_higher_better=is_higher_better,
+        ckpts_path=ckpts_path,
+        run_name=run_name,
     )
-
     try:
         training_loop.run()
     except KeyboardInterrupt:
-        print("Training interrupted. Returning current model...")
+        logging.info("Training interrupted. Returning current model...")
         pass
 
     return model
