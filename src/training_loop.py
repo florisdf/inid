@@ -14,6 +14,7 @@ from .eval_utils.score_matrix import get_score_matrix
 from .eval_utils.avg_ref_embs import avg_ref_embs
 from .metrics.accuracy import accuracy
 from .metrics.pr_metrics import pr_metrics
+from .metrics.hard_pos_neg_scores import hard_pos_neg_scores
 from .train_utils.log import log
 from .train_utils.running_extrema import RunningExtrema, MAX, MIN
 
@@ -111,7 +112,7 @@ class TrainingLoop:
             sys.exit('Loss is NaN. Exiting...')
 
     def validation_epoch(self):
-        # Compute validation metrics
+        # Compute score matrix and corresponding labels
         scores, quer_labels, gal_labels = get_score_matrix(
             self.model,
             self.device,
@@ -119,14 +120,9 @@ class TrainingLoop:
             self.dl_val_quer,
             get_embeddings_fn=self.get_embeddings_fn,
         )
-        val_log_dict = pr_metrics(scores, quer_labels, gal_labels)
-
-        # Compute top-1 accuracy
-        val_log_dict.update({
-            'Accuracy': accuracy(scores, quer_labels, gal_labels)
-        })
-
-        scores_avg_refs, quer_labels, gal_labels_avg_refs = get_score_matrix(
+        # Compute score matrix and corresponding labels when using average
+        # reference embeddings in the gallery
+        scores_avg_refs, _, gal_labels_avg_refs = get_score_matrix(
             self.model,
             self.device,
             self.dl_val_gal,
@@ -134,8 +130,26 @@ class TrainingLoop:
             get_embeddings_fn=self.get_embeddings_fn,
             agg_gal_fn=avg_ref_embs
         )
+
+        # Compute PR metrics (only for non-aggregated refs)
+        val_log_dict = pr_metrics(scores, quer_labels, gal_labels)
+
+        # Compute top-1 accuracy
+        val_log_dict.update({
+            'Accuracy': accuracy(scores, quer_labels, gal_labels)
+        })
         val_log_dict.update({
             'Accuracy (avg refs)': accuracy(scores_avg_refs, quer_labels,
+                                            gal_labels_avg_refs)
+        })
+
+        # Compute distribution of hard positive and negative similarities
+        val_log_dict.update(
+            hard_pos_neg_scores(scores, quer_labels, gal_labels)
+        )
+        val_log_dict.update({
+            f'{k} (avg refs)': v
+            for k, v in hard_pos_neg_scores(scores_avg_refs, quer_labels,
                                             gal_labels_avg_refs)
         })
 
