@@ -9,11 +9,12 @@ from torch import nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from .score_matrix import get_score_matrix
-from .pr_metrics import pr_metrics
-from .running_extrema import RunningExtrema, MAX, MIN
+from .accuracy import accuracy
 from .checkpoint import create_checkpoints
 from .log import log
+from .pr_metrics import pr_metrics
+from .running_extrema import RunningExtrema, MAX, MIN
+from .score_matrix import get_score_matrix
 
 
 class TrainingLoop:
