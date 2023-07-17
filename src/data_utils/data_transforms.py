@@ -1,23 +1,39 @@
-from torchvision.transforms import transforms
+from typing import Tuple, List
+
+import torch
+from torchvision.transforms import CenterCrop, Compose, ToTensor, Lambda,\
+    Normalize, RandomResizedCrop, Resize
+
+from .three_crop import ThreeCrop
 
 
-def get_data_transforms(rrc_scale=(1., 1.), rrc_ratio=(1., 1.)):
-    mean = [0.485, 0.456, 0.406]
-    std = [0.229, 0.224, 0.225]
-
-    tfm_train = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.RandomResizedCrop(224, scale=rrc_scale,
-                                     ratio=rrc_ratio,
-                                     antialias=True),
-        transforms.Normalize(mean=mean, std=std)
+def get_data_transforms(
+    input_size: int,
+    norm_mean: List[float],
+    norm_std: List[float],
+    rrc_scale: Tuple[float],
+    rrc_ratio: Tuple[float],
+    use_three_crop: bool,
+):
+    tfm_train = Compose([
+        ToTensor(),
+        RandomResizedCrop(input_size,
+                          scale=rrc_scale,
+                          ratio=rrc_ratio,
+                          antialias=True),
+        Normalize(mean=norm_mean, std=norm_std)
     ])
 
-    tfm_val = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Resize(224, antialias=True),
-        transforms.CenterCrop(224),
-        transforms.Normalize(mean=mean, std=std)
+    crop_tfms = [
+        ThreeCrop(),
+        Lambda(lambda crops: torch.stack([crop for crop in crops]))
+    ] if use_three_crop else [CenterCrop(input_size)]
+
+    tfm_val = Compose([
+        ToTensor(),
+        Resize(input_size, antialias=True),
+        *crop_tfms,
+        Normalize(mean=norm_mean, std=norm_std)
     ])
 
     return tfm_train, tfm_val

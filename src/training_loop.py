@@ -10,7 +10,8 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from .checkpoint import create_checkpoints
-from .eval_util.score_matrix import get_score_matrix
+from .eval_utils.score_matrix import get_score_matrix
+from .eval_utils.avg_ref_embs import avg_ref_embs
 from .metrics.accuracy import accuracy
 from .metrics.pr_metrics import pr_metrics
 from .train_utils.log import log
@@ -21,6 +22,7 @@ class TrainingLoop:
     def __init__(
         self,
         model: nn.Module,
+        loss_fn: nn.Module,
         optimizer: Optimizer,
         lr_scheduler: LRScheduler,
         device: torch.device,
@@ -37,6 +39,7 @@ class TrainingLoop:
         get_embeddings_fn: Optional[Callable] = None
     ):
         self.model = model
+        self.loss_fn = loss_fn
         self.num_epochs = num_epochs
         self.dl_train = dl_train
         self.dl_val_gal = dl_val_gal
@@ -121,6 +124,19 @@ class TrainingLoop:
         # Compute top-1 accuracy
         val_log_dict.update({
             'Accuracy': accuracy(scores, quer_labels, gal_labels)
+        })
+
+        scores_avg_refs, quer_labels, gal_labels_avg_refs = get_score_matrix(
+            self.model,
+            self.device,
+            self.dl_val_gal,
+            self.dl_val_quer,
+            get_embeddings_fn=self.get_embeddings_fn,
+            agg_gal_fn=avg_ref_embs
+        )
+        val_log_dict.update({
+            'Accuracy (avg refs)': accuracy(scores_avg_refs, quer_labels,
+                                            gal_labels_avg_refs)
         })
 
         # Log validation metrics
