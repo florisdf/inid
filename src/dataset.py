@@ -6,7 +6,7 @@ from .data_utils.gallery_query_split import split_gallery_query_random
 from .data_utils.k_fold import label_based_k_fold_trainval_split
 
 
-DATA_CSV_PTRN = 'data-{}_split.csv'
+DATA_CSV_PTRN = '{}_split.csv'
 TRAIN_SUBSET = 'train'
 TEST_SUBSET = 'test'
 QUERY_SUBSET = 'val_query'
