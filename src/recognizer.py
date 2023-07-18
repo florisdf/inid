@@ -5,7 +5,7 @@ from torch import nn
 from torchvision import models
 from torchvision.models._api import Weights
 
-from .train_utils.classifier_ops import update_classifier,\
+from .utils.training import update_classifier,\
     split_backbone_classifier, get_ultimate_classifier
 
 

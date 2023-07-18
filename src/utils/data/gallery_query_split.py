@@ -1,4 +1,4 @@
-def split_gallery_query_random(df, n_refs, seed, label_key='label'):
+def split_gallery_query(df, n_refs, seed, label_key='label'):
     gal_idxs = (df.groupby(label_key)
                 .sample(n_refs, random_state=seed)
                 .index)

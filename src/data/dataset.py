@@ -2,8 +2,7 @@ import pandas as pd
 from PIL import Image
 from torch.utils.data import Dataset
 
-from .data_utils.gallery_query_split import split_gallery_query_random
-from .data_utils.k_fold import label_based_k_fold_trainval_split
+from ..utils.data import split_gallery_query, label_based_k_fold_trainval_split
 
 
 TRAIN_SUBSET = 'train'
@@ -69,7 +68,7 @@ class RecogDataset(Dataset):
             self.df = df
 
         if is_val(subset):
-            df_gal, df_quer = split_gallery_query_random(
+            df_gal, df_quer = split_gallery_query(
                 self.df, n_refs, rand_ref_seed
             )
 

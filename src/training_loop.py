@@ -9,14 +9,9 @@ from torch import nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from .eval_utils.score_matrix import get_score_matrix
-from .eval_utils.avg_ref_embs import avg_ref_embs
-from .eval_utils.accuracy import accuracy
-from .eval_utils.pr_metrics import pr_metrics
-from .eval_utils.hard_pos_neg_scores import hard_pos_neg_scores
-from .train_utils.checkpoint import create_checkpoints
-from .train_utils.log import log
-from .train_utils.running_extrema import RunningExtrema, MAX, MIN
+from .utils.inference import get_score_matrix, avg_ref_embs
+from .metrics import accuracy, pr_metrics, hard_pos_neg_scores
+from .utils.training import create_checkpoints, log, RunningExtrema, MAX, MIN
 
 
 class TrainingLoop:

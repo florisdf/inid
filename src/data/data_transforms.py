@@ -4,7 +4,7 @@ import torch
 from torchvision.transforms import CenterCrop, Compose, ToTensor, Lambda,\
     Normalize, RandomResizedCrop, Resize
 
-from .three_crop import ThreeCrop
+from ..utils.inference import ThreeCrop
 
 
 def get_data_transforms(

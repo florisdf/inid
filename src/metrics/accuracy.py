@@ -1,7 +1,7 @@
 import torch
 from torch import Tensor
 
-from .knn import top_k
+from ..utils.inference import top_k
 
 
 def accuracy(scores: Tensor, query_labels: Tensor, gallery_labels: Tensor):
