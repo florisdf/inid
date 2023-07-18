@@ -7,8 +7,6 @@ def hard_pos_neg_scores(
     scores: Tensor,
     query_labels: Tensor,
     gallery_labels: Tensor,
-    hist_bins=50,
-    hist_range=(-1., 1.),
 ):
     """
     Return the similarity scores between each query and the hardest negative
