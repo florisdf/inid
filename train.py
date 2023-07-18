@@ -13,10 +13,9 @@ from torchvision import models
 import wandb
 
 from src.recognizer import Recognizer
-from src.dataset import RecogDataset, TRAIN_SUBSET, QUERY_SUBSET,\
-    GALLERY_SUBSET
-from src.data_utils.data_transforms import get_data_transforms
-from src.data_utils.three_crop import collate_with_three_crops,\
+from src.data import RecogDataset, TRAIN_SUBSET, QUERY_SUBSET,\
+    GALLERY_SUBSET, get_data_transforms
+from src.utils.inference import collate_with_three_crops,\
     get_embeddings_three_crops
 from src.training_loop import TrainingLoop
 
