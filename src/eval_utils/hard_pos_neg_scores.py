@@ -11,8 +11,8 @@ def hard_pos_neg_scores(
     hist_range=(-1., 1.),
 ):
     """
-    Return the histograms of the similarity scores between each query and the
-    hardest negative and hardest positive in the gallery.
+    Return the similarity scores between each query and the hardest negative
+    and hardest positive in the gallery.
     """
     # Subtract infinity from the positive labels, so we can find the
     # closest negative
@@ -35,14 +35,6 @@ def hard_pos_neg_scores(
     hardest_pos_scores = hardest_pos_scores[~torch.isinf(hardest_pos_scores)]
 
     return {
-        'HardPosScores': torch.histogram(
-            hardest_pos_scores.cpu(),
-            bins=hist_bins,
-            range=hist_range
-        ),
-        'HardNegScores': torch.histogram(
-            hardest_neg_scores.cpu(),
-            bins=hist_bins,
-            range=hist_range
-        )
+        'HardPosScores': hardest_pos_scores,
+        'HardNegScores': hardest_neg_scores
     }

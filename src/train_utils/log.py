@@ -12,10 +12,6 @@ def log(log_dict, epoch_idx, batch_idx=None, section=None):
     def get_value(v):
         if isinstance(v, torch.Tensor):
             return v.detach().cpu()
-        elif isinstance(v, torch.return_types.histogram):
-            hist = v.hist.cpu().numpy()
-            bin_edges = v.bin_edges.cpu().numpy()
-            return wandb.Histogram(np_histogram=(hist, bin_edges))
         elif isinstance(v, float) or isinstance(v, int):
             return v
         else:
