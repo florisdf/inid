@@ -2,7 +2,8 @@ import torch
 
 
 def knn(scores, gal_labels, k):
-    return torch.mode(top_k(scores, gal_labels, k))[0]
+    top_k_scores, top_k_labels = top_k(scores, gal_labels, k)
+    return torch.mode(top_k_labels)[0]
 
 
 def top_k(scores, gal_labels, k):
