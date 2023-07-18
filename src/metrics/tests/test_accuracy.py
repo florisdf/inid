@@ -1,7 +1,5 @@
-import pytest  # noqa
-
 import torch
-from src.metrics.accuracy import accuracy, top_k_accuracy
+from src.metrics import accuracy, top_k_accuracy
 
 
 def test_perfect_accuracy():

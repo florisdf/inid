@@ -140,7 +140,7 @@ def prtf_at_max_f1(precisions, recalls, thresholds):
         2 * (p * r)/(p + r)
         for p, r in zip(precisions, recalls)
     ]
-    max_f1_idxs = [torch.argmax(f1) for f1 in f1s]
+    max_f1_idxs = [torch.argmax(torch.nan_to_num(f1)) for f1 in f1s]
     prtfs_at_max_f1 = [
         (p[idx], r[idx], th[idx], f1[idx])
         for idx, p, r, th, f1 in zip(
