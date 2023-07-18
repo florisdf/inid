@@ -1,0 +1,29 @@
+program: train.py
+method: grid
+entity: florisdf
+project: recognition_template
+command:
+  - /home/fdf/projects/recognition_template/.venv/bin/python
+  - ${program}
+  - ${args}
+parameters:
+  lr:
+    distribution: categorical
+    values: [0.001, 0.01, 0.1, 1.0]
+  lr_warmup_steps:
+    value: 500
+  k_fold_num_folds:
+    value: 5
+  k_fold_seed:
+    value: 15
+  k_fold_val_fold:
+    distribution: categorical
+    values: [0, 1, 2, 3, 4]
+  momentum:
+    value: 0.95
+  batch_size:
+    value: 32
+  num_epochs:
+    value: 50
+  num_workers:
+    value: 8
