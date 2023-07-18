@@ -16,7 +16,7 @@ def get_score_matrix(model, device, dl_gal, dl_quer, agg_gal_fn=None,
         imgs = imgs.to(device)
         labels = labels.to(device)
         if get_embeddings_fn is None:
-            out = model.get_embeddings(imgs)
+            out = model(imgs)
         else:
             out = get_embeddings_fn(model, imgs)
         assert len(labels) == len(out)
@@ -34,7 +34,7 @@ def get_score_matrix(model, device, dl_gal, dl_quer, agg_gal_fn=None,
         imgs = imgs.to(device)
         labels = labels.to(device)
         if get_embeddings_fn is None:
-            q_embs = model.get_embeddings(imgs)
+            q_embs = model(imgs)
         else:
             q_embs = get_embeddings_fn(model, imgs)
         scores.append(torch.matmul(q_embs, gal_embeddings.T))
