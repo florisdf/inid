@@ -18,7 +18,7 @@ def top_k_accuracy(
     Compute the top-k accuracy.
     """
     _, top_k_labels = top_k(scores, gallery_labels, k)
-    return top_all_accuracy(top_k_labels, query_labels)
+    return top_all_accuracy(query_labels, top_k_labels)
 
 
 def top_all_accuracy(
