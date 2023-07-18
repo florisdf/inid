@@ -16,7 +16,6 @@ def top_k_sorted(sorted_scores, sorted_gal_labels, k):
     return sorted_scores[:, :k], sorted_gal_labels[:, :k]
 
 
-@torch.no_grad
 def sort_scores_labels(scores, gal_labels):
     sorted_idxs = torch.argsort(scores, dim=1, descending=True)
     sorted_scores = torch.gather(scores, dim=1, index=sorted_idxs)

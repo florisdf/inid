@@ -12,12 +12,13 @@ from torchvision.models._api import Weights
 from torchvision import models
 import wandb
 
-from .src.recognizer import Recognizer
-from .src.dataset import RecogDataset, get_data_transforms, TRAIN_SUBSET,\
-    QUERY_SUBSET, GALLERY_SUBSET
-from .src.data_utils.three_crop import collate_with_three_crops,\
+from src.recognizer import Recognizer
+from src.dataset import RecogDataset, TRAIN_SUBSET, QUERY_SUBSET,\
+    GALLERY_SUBSET
+from src.data_utils.data_transforms import get_data_transforms
+from src.data_utils.three_crop import collate_with_three_crops,\
     get_embeddings_three_crops
-from .src.training_loop import TrainingLoop
+from src.training_loop import TrainingLoop
 
 
 def run_training(
@@ -37,9 +38,14 @@ def run_training(
     ckpts_path: Path,
     run_name: str,
 
+    gal_num_refs: int,
+    gal_rand_ref_seed: int,
     val_fold: int,
     num_folds: int,
     k_fold_seed: int,
+    train_csv: str,
+    label_key: str,
+    image_key: str,
 
     input_size: int,
     rrc_scale: Tuple[float],
@@ -67,22 +73,40 @@ def run_training(
         use_three_crop=use_three_crop,
     )
     ds_train = RecogDataset(
-        subset=TRAIN_SUBSET, transform=tfm_train,
-        val_fold=val_fold,
+        subset=TRAIN_SUBSET,
+        transform=tfm_train,
+        n_refs=gal_num_refs,
+        rand_ref_seed=gal_rand_ref_seed,
         num_folds=num_folds,
-        k_fold_seed=k_fold_seed
+        val_fold=val_fold,
+        k_fold_seed=k_fold_seed,
+        label_key=label_key,
+        image_key=image_key,
+        train_csv_file=train_csv,
     )
     ds_gal = RecogDataset(
-        subset=GALLERY_SUBSET, transform=tfm_val,
-        val_fold=val_fold,
+        subset=GALLERY_SUBSET,
+        transform=tfm_val,
+        n_refs=gal_num_refs,
+        rand_ref_seed=gal_rand_ref_seed,
         num_folds=num_folds,
-        k_fold_seed=k_fold_seed
+        val_fold=val_fold,
+        k_fold_seed=k_fold_seed,
+        label_key=label_key,
+        image_key=image_key,
+        train_csv_file=train_csv,
     )
     ds_quer = RecogDataset(
-        subset=QUERY_SUBSET, transform=tfm_val,
-        val_fold=val_fold,
+        subset=QUERY_SUBSET,
+        transform=tfm_val,
+        n_refs=gal_num_refs,
+        rand_ref_seed=gal_rand_ref_seed,
         num_folds=num_folds,
-        k_fold_seed=k_fold_seed
+        val_fold=val_fold,
+        k_fold_seed=k_fold_seed,
+        label_key=label_key,
+        image_key=image_key,
+        train_csv_file=train_csv,
     )
 
     # Create data loaders
@@ -112,7 +136,7 @@ def run_training(
     model = Recognizer(
         model_name=model_name,
         num_classes=num_classes,
-        model_weights=model_weights
+        weights=model_weights
     )
 
     # Freeze parameters
@@ -198,8 +222,6 @@ if __name__ == '__main__':
         help='The pretrained weights to load. If None, the weights are '
         'randomly initialized. See also '
         'https://pytorch.org/vision/stable/models.html.',
-        type=lambda arg: None if arg is None or arg == 'None'
-        else getattr(models, args.model_weights),
         default=None
     )
     parser.add_argument(
@@ -217,7 +239,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--save_best', action='store_true',
         help='If set, save a checkpoint containg the weights with the best '
-        'performance, as defined by --best_metric and --higher_is_better.'
+        'performance, as defined by --best_metric and --lower_is_better.'
     )
     parser.add_argument(
         '--save_last', action='store_true',
@@ -225,14 +247,14 @@ if __name__ == '__main__':
         'epoch.'
     )
     parser.add_argument(
-        '--best_metric', default='L2',
+        '--best_metric', default='mAP',
         help='If this metric improves, create a checkpoint '
         '(when --save_best is set).'
     )
     parser.add_argument(
-        '--higher_is_better', action='store_true',
+        '--lower_is_better', action='store_true',
         help='If set, the metric set with --best_metric is better when '
-        'it inreases.'
+        'it decreases.'
     )
     parser.add_argument(
         '--ckpts_path', default='./ckpts',
@@ -255,6 +277,36 @@ if __name__ == '__main__':
         help='The index of the validation fold. '
         'If None, all folds are used for training.',
         type=int_or_none
+    )
+
+    # Gallery args
+    parser.add_argument(
+        '--gal_num_refs', default=1,
+        help='The number of references to use in the gallery for each label '
+        'in the validation set.',
+        type=int
+    )
+    parser.add_argument(
+        '--gal_rand_ref_seed', default=15,
+        help='The seed for the random generator that chooses the validation '
+        'samples to use as reference in the gallery.',
+        type=int
+    )
+
+    # Data CSV file
+    parser.add_argument(
+        '--data_train_csv', default='data_train.csv',
+        help='The CSV file containing the training dataset labels and images.'
+    )
+    parser.add_argument(
+        '--data_label_key', default='label',
+        help='The name of the column containing the label of each dataset '
+        'sample.'
+    )
+    parser.add_argument(
+        '--data_image_key', default='image',
+        help='The name of the column containing the image path of each '
+        'dataset sample.'
     )
 
     # Dataset
@@ -384,15 +436,21 @@ if __name__ == '__main__':
         weight_decay=args.weight_decay,
         lr_warmup_steps=args.lr_warmup_steps,
 
+        input_size=args.input_size,
         rrc_scale=args.rrc_scale,
         rrc_ratio=args.rrc_ratio,
         norm_mean=args.norm_mean,
         norm_std=args.norm_std,
         use_three_crop=args.use_three_crop,
 
+        gal_num_refs=args.gal_num_refs,
+        gal_rand_ref_seed=args.gal_rand_ref_seed,
         val_fold=args.k_fold_val_fold,
         num_folds=args.k_fold_num_folds,
         k_fold_seed=args.k_fold_seed,
+        train_csv=args.data_train_csv,
+        label_key=args.data_label_key,
+        image_key=args.data_image_key,
 
         batch_size=args.batch_size,
         num_epochs=args.num_epochs,
@@ -402,7 +460,7 @@ if __name__ == '__main__':
         device=args.device,
 
         best_metric=args.best_metric,
-        is_higher_better=args.higher_is_better,
+        is_higher_better=not args.lower_is_better,
         ckpts_path=args.ckpts_path,
         run_name=wandb.run.id,
 

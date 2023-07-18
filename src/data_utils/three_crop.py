@@ -23,9 +23,13 @@ def three_crop(img):
 
 
 def collate_with_three_crops(batch):
-    three_crop_label_list = [(three_crops, label) for three_crops, label in batch]
+    three_crop_label_list = [
+        (three_crops, label) for three_crops, label in batch
+    ]
 
-    three_crops = torch.stack([three_crop for three_crop, _ in three_crop_label_list])
+    three_crops = torch.stack([
+        three_crop for three_crop, _ in three_crop_label_list
+    ])
     labels = torch.tensor([label for _, label in three_crop_label_list])
     return three_crops, labels
 
@@ -34,7 +38,7 @@ def get_embeddings_three_crops(model, batch):
     # Batch size, Three Crops, Channels, Height, Width
     b, n_crops, c, h, w = batch.shape
     batch = batch.flatten(start_dim=0, end_dim=1)
-    embs = model.get_embeddings(batch)
+    embs = model(batch)
 
     # Reshape to Batch size, Three Crops, Emb dim
     embs = torch.unflatten(embs, dim=0, sizes=(b, n_crops))

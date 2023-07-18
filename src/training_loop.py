@@ -9,12 +9,12 @@ from torch import nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from .checkpoint import create_checkpoints
 from .eval_utils.score_matrix import get_score_matrix
 from .eval_utils.avg_ref_embs import avg_ref_embs
-from .metrics.accuracy import accuracy
-from .metrics.pr_metrics import pr_metrics
-from .metrics.hard_pos_neg_scores import hard_pos_neg_scores
+from .eval_utils.accuracy import accuracy
+from .eval_utils.pr_metrics import pr_metrics
+from .eval_utils.hard_pos_neg_scores import hard_pos_neg_scores
+from .train_utils.checkpoint import create_checkpoints
 from .train_utils.log import log
 from .train_utils.running_extrema import RunningExtrema, MAX, MIN
 
@@ -48,9 +48,13 @@ class TrainingLoop:
         self.get_embeddings_fn = get_embeddings_fn
         self.run_name = run_name
 
-        self.running_extrema = RunningExtrema(
+        self.running_extrema_best = RunningExtrema(
             MAX if is_higher_better
             else MIN
+        )
+        self.running_extrema_worst = RunningExtrema(
+            MIN if is_higher_better
+            else MAX
         )
         self.ckpt_dir = Path(ckpts_path)
 
@@ -65,7 +69,8 @@ class TrainingLoop:
         self.best_metric = best_metric
 
     def run(self):
-        self.running_extrema.clear()
+        self.running_extrema_best.clear()
+        self.running_extrema_worst.clear()
 
         # Training loop
         for self.epoch_idx in tqdm(range(self.num_epochs), leave=True):
@@ -150,7 +155,7 @@ class TrainingLoop:
         val_log_dict.update({
             f'{k} (avg refs)': v
             for k, v in hard_pos_neg_scores(scores_avg_refs, quer_labels,
-                                            gal_labels_avg_refs)
+                                            gal_labels_avg_refs).items()
         })
 
         # Log validation metrics
@@ -158,14 +163,18 @@ class TrainingLoop:
 
         # Check if the value of the metric to optimize is the best
         best_metric_val = val_log_dict[self.best_metric]
-        is_best = self.running_extrema.is_new_extremum(self.best_metric,
-                                                       best_metric_val)
+        is_best = self.running_extrema_best.is_new_extremum(self.best_metric,
+                                                            best_metric_val)
         # Create checkpoints
         create_checkpoints(self.model, self.run_name, self.ckpt_dir,
                            save_best=self.save_best and is_best,
                            save_last=self.save_last)
 
         # Update and log running extrema
-        self.running_extrema.update_dict(val_log_dict)
-        log(dict(self.running_extrema), epoch_idx=self.epoch_idx,
+        self.running_extrema_best.update_dict(val_log_dict)
+        self.running_extrema_worst.update_dict(val_log_dict)
+
+        log(self.running_extrema_best.extrema_dict, epoch_idx=self.epoch_idx,
+            section='Val')
+        log(self.running_extrema_worst.extrema_dict, epoch_idx=self.epoch_idx,
             section='Val')

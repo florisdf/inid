@@ -9,19 +9,20 @@ class RunningExtrema:
                 f'Unknown extremum "{extremum}". '
                 f'Possible  values: "{MAX}" and "{MIN}".'
             )
-        self.extrema_dict = {}
+        self._extrema_dict = {}
         self.extremum = extremum
 
     def is_new_extremum(self, key, val):
-        if key not in self.extrema_dict:
+        if key not in self._extrema_dict:
             try:
-                # Check if the value can be compared
-                self._comp_fn(val, 0)
-                return True
-            except ValueError:
+                # Check if the value can be compared and returns a (single)
+                # boolean value
+                if self._comp_fn(val, 0) or True:
+                    return True
+            except (TypeError, RuntimeError):
                 return False
 
-        return self._comp_fn(val, self.extrema_dict[key])
+        return self._comp_fn(val, self._extrema_dict[key])
 
     def _comp_fn(self, new, curr):
         return (
@@ -31,17 +32,18 @@ class RunningExtrema:
 
     def update(self, key, val):
         if self.is_new_extremum(key, val):
-            self.extrema_dict[key] = val
+            self._extrema_dict[key] = val
 
     def update_dict(self, d: dict):
         for k, v in d.items():
             self.update(k, v)
 
     def clear(self):
-        self.extrema_dict = {}
+        self._extrema_dict = {}
 
-    def __dict__(self):
+    @property
+    def extrema_dict(self):
         return {
             f'{self.extremum.title()}{k}': v
-            for k, v in self.extrema_dict.items()
+            for k, v in self._extrema_dict.items()
         }

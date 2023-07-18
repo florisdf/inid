@@ -6,7 +6,6 @@ from .data_utils.gallery_query_split import split_gallery_query_random
 from .data_utils.k_fold import label_based_k_fold_trainval_split
 
 
-DATA_CSV_PTRN = '{}_split.csv'
 TRAIN_SUBSET = 'train'
 TEST_SUBSET = 'test'
 QUERY_SUBSET = 'val_query'
@@ -24,6 +23,8 @@ class RecogDataset(Dataset):
         k_fold_seed=15,
         label_key='label',
         image_key='image',
+        train_csv_file='data_train.csv',
+        test_csv_file='data_test.csv',
     ):
         """
         Args:
@@ -43,11 +44,11 @@ class RecogDataset(Dataset):
 
         if not is_test:
             assert subset == TRAIN_SUBSET or is_val(subset)
-            csv_path = DATA_CSV_PTRN.format(TRAIN_SUBSET)
+            csv_path = train_csv_file
         else:
-            csv_path = DATA_CSV_PTRN.format(TEST_SUBSET)
+            csv_path = test_csv_file
 
-        df = pd.read_csv(csv_path, index_col=0)
+        df = pd.read_csv(csv_path)
 
         self.transform = transform
         self.label_to_idx = {

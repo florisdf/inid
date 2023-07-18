@@ -26,7 +26,7 @@ def update_classifier(
             don't.
     """
     clf_path = get_path_to_ultimate_classifier(model)
-    clf_module = get_module_at_path(clf_path)
+    clf_module = get_module_at_path(model, clf_path)
 
     if isinstance(clf_module, Linear):
         new_clf_module = Linear(
@@ -93,8 +93,13 @@ def get_path_to_ultimate_classifier(
             (like AlexNet), or an `nn.Sequential` that contains a `nn.Conv2d`
             followed by an adaptive average pooling layer (like SqueezeNet).
     """
-    ult_name, ult_layer = list(model.named_children())[-1]
-    path_to_clf_layer = [ult_name]
+    named_children = list(model.named_children())
+    if len(named_children) == 0:
+        ult_layer = model
+        path_to_clf_layer = []
+    else:
+        ult_name, ult_layer = named_children[-1]
+        path_to_clf_layer = [ult_name]
 
     if isinstance(ult_layer, Linear):
         return path_to_clf_layer
@@ -164,5 +169,5 @@ def set_module_at_path(
             get from the parent module to retrieve the corresponding module.
         new_module (nn.Module): The module to put at the given path.
     """
-    parent = get_module_at_path[path[:-1]]
+    parent = get_module_at_path(model, path[:-1])
     setattr(parent, path[-1], new_module)

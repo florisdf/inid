@@ -36,12 +36,12 @@ def hard_pos_neg_scores(
 
     return {
         'HardPosScores': torch.histogram(
-            hardest_pos_scores,
+            hardest_pos_scores.cpu(),
             bins=hist_bins,
             range=hist_range
         ),
         'HardNegScores': torch.histogram(
-            hardest_neg_scores,
+            hardest_neg_scores.cpu(),
             bins=hist_bins,
             range=hist_range
         )
