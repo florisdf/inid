@@ -1,4 +1,3 @@
-import pytest
 import torch
 
 from src.metrics import pr_metrics
