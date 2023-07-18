@@ -12,9 +12,6 @@ GALLERY_SUBSET = 'val_gallery'
 
 
 class RecogDataset(Dataset):
-    """
-    Recognition dataset of 50 dogs with about 50 images per dog.
-    """
     def __init__(
         self, subset, transform=None,
         n_refs=5, rand_ref_seed=15,
