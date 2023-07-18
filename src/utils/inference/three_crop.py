@@ -23,6 +23,13 @@ def three_crop(img):
 
 
 def collate_with_three_crops(batch):
+    """
+    Converts a list of tuples into a tuple `(three_crops, labels)`, where
+    `three_crops` is a tensor of shape `B x T x C x H x W` and `labels` is a
+    tensor of shape `B`., with `B` the batch size, `T = 3` for the three crops,
+    `C` the number of channels, `H` the height of the images and `W` the width
+    of the images.
+    """
     three_crop_label_list = [
         (three_crops, label) for three_crops, label in batch
     ]

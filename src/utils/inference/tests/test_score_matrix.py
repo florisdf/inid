@@ -29,8 +29,11 @@ def test_get_score_matrix():
     ])
     exp_g_labels = torch.tensor([0, 1])
 
+    model = torch.nn.Identity()
+    model.eval()
+
     ret_scores, ret_q_labels, ret_g_labels = get_score_matrix(
-        MockModel(),
+        model,
         device='cpu',
         dl_gal=dl_gal,
         dl_quer=dl_quer
@@ -39,10 +42,3 @@ def test_get_score_matrix():
     assert (exp_scores == ret_scores).all()
     assert (exp_q_labels == ret_q_labels).all()
     assert (exp_g_labels == ret_g_labels).all()
-
-
-class MockModel:
-    training = False
-
-    def __call__(self, x):
-        return x
