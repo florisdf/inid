@@ -365,7 +365,7 @@ if __name__ == '__main__':
 
     # Train args
     parser.add_argument(
-        '--num_epochs', default=500,
+        '--num_epochs', default=50,
         help='The number of epochs to train.',
         type=int
     )
