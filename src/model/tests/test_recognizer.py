@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from src.recognizer import Recognizer, SUPPORTED_MODELS
+from src.model import Recognizer, SUPPORTED_MODELS
 
 
 @pytest.fixture

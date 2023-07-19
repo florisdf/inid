@@ -9,9 +9,10 @@ from torch import nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from .utils.inference import get_score_matrix, avg_ref_embs
-from .metrics import accuracy, pr_metrics, hard_pos_neg_scores
-from .utils.training import create_checkpoints, log, RunningExtrema, MAX, MIN
+from src.utils.inference import get_score_matrix, avg_ref_embs
+from src.metrics import accuracy, pr_metrics, hard_pos_neg_scores
+from src.utils.training import create_checkpoints, log, RunningExtrema,\
+    MAX, MIN
 
 
 class TrainingLoop:

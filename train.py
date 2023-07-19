@@ -12,7 +12,7 @@ from torchvision.models._api import Weights
 from torchvision import models
 import wandb
 
-from src.recognizer import Recognizer
+from src.model import Recognizer
 from src.data import RecogDataset, TRAIN_SUBSET, QUERY_SUBSET,\
     GALLERY_SUBSET, get_data_transforms
 from src.utils.inference import collate_with_three_crops,\
