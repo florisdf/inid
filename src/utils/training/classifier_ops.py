@@ -1,7 +1,7 @@
 from typing import List
 
 from torch import nn
-from torch.nn import Sequential, Linear, Conv2d
+from torch.nn import Sequential, Linear
 
 
 def update_classifier(
@@ -17,10 +17,8 @@ def update_classifier(
     Args:
         model (nn.Module): The model to update. We assume that the last layer
             of the model is a classifier. This can be a single `nn.Linear`
-            (like ResNet), an `nn.Sequential` with an `nn.Linear` as final
-            layer (like AlexNet), or an `nn.Sequential` that contains a
-            `nn.Conv2d` followed by an adaptive average pooling layer (like
-            SqueezeNet).
+            (like ResNet), or an `nn.Sequential` with an `nn.Linear` as final
+            layer (like AlexNet).
         num_classes (int): The new number of classes for the classifier.
         bias (bool): If `True`, use a bias in the updated classifier. Else,
             don't.
@@ -34,19 +32,9 @@ def update_classifier(
             out_features=num_classes,
             bias=bias
         )
-    elif isinstance(clf_module, Conv2d):
-        new_clf_module = Conv2d(
-            in_channels=clf_module.in_channels,
-            out_channels=num_classes,
-            kernel_size=clf_module.kernel_size,
-            padding=clf_module.padding,
-            dilation=clf_module.dilation,
-            groups=clf_module.groups,
-            bias=bias,
-            padding_mode=clf_module.padding_mode
-        )
     else:
-        raise ValueError('Cannot find classifier inside model')
+        raise ValueError('Cannot find a final fully-connected layer in '
+                         'the model. Please use a different model.')
 
     set_module_at_path(model, clf_path, new_clf_module)
 
@@ -62,10 +50,8 @@ def split_backbone_classifier(
     Args:
         model (nn.Module): The model to split. We assume that the last layer
             of the model is a classifier. This can be a single `nn.Linear`
-            (like ResNet), an `nn.Sequential` with an `nn.Linear` as final
-            layer (like AlexNet), or an `nn.Sequential` that contains a
-            `nn.Conv2d` followed by an adaptive average pooling layer (like
-            SqueezeNet).
+            (like ResNet), or an `nn.Sequential` with an `nn.Linear` as final
+            layer (like AlexNet).
     """
     clf_path = get_path_to_ultimate_classifier(model)
     classifier = get_module_at_path(model, clf_path)
@@ -89,9 +75,8 @@ def get_path_to_ultimate_classifier(
     Args:
         model (nn.Module): The model. We assume that the last layer of the
             model is a classifier. This can be a single `nn.Linear` (like
-            ResNet), an `nn.Sequential` with an `nn.Linear` as final layer
-            (like AlexNet), or an `nn.Sequential` that contains a `nn.Conv2d`
-            followed by an adaptive average pooling layer (like SqueezeNet).
+            ResNet) or an `nn.Sequential` with an `nn.Linear` as final layer
+            (like AlexNet)
     """
     named_children = list(model.named_children())
     if len(named_children) == 0:
@@ -108,14 +93,8 @@ def get_path_to_ultimate_classifier(
         if isinstance(ult_sublayer, Linear):
             path_to_clf_layer.append(ult_subname)
             return path_to_clf_layer
-        else:
-            conv_names = [name for name, l in ult_layer.named_children()
-                          if isinstance(l, Conv2d)]
-            if len(conv_names) > 0:
-                ult_conv_name = max(conv_names)
-                path_to_clf_layer.append(ult_conv_name)
-                return path_to_clf_layer
-    raise ValueError('Cannot find classifier inside model')
+    raise ValueError('Cannot find a final fully-connected layer in '
+                     'the model. Please use a different model.')
 
 
 def get_ultimate_classifier(
@@ -129,9 +108,8 @@ def get_ultimate_classifier(
     Args:
         model (nn.Module): The model. We assume that the last layer of the
             model is a classifier. This can be a single `nn.Linear` (like
-            ResNet), an `nn.Sequential` with an `nn.Linear` as final layer
-            (like AlexNet), or an `nn.Sequential` that contains a `nn.Conv2d`
-            followed by an adaptive average pooling layer (like SqueezeNet).
+            ResNet), or an `nn.Sequential` with an `nn.Linear` as final layer
+            (like AlexNet).
     """
     path = get_path_to_ultimate_classifier(model)
     return get_module_at_path(model, path)
