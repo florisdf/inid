@@ -58,7 +58,8 @@ class RecogDataset(Dataset):
         if not is_test:
             df_train, df_val = label_based_k_fold_trainval_split(
                 df=df, num_folds=num_folds, val_fold=val_fold,
-                seed=k_fold_seed
+                seed=k_fold_seed,
+                label_key=label_key
             )
             self.df = df_val if is_val(subset) else df_train
         else:
@@ -66,7 +67,8 @@ class RecogDataset(Dataset):
 
         if is_val(subset):
             df_gal, df_quer = split_gallery_query(
-                self.df, n_refs, rand_ref_seed
+                self.df, n_refs, rand_ref_seed,
+                label_key=label_key
             )
 
             self.df = df_quer if subset == QUERY_SUBSET else df_gal
