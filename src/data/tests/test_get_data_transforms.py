@@ -143,5 +143,3 @@ def test_val_crop_is_center_vertical():
     ret = tfm_val(im)
 
     assert (ret == to_tensor(exp_center)).all()
-
-
