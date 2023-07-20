@@ -215,7 +215,7 @@ def run_training(
         )
 
 
-train_batch_idx = -1
+train_batch_idx = -1  # should have global scope
 
 
 def training_epoch(
