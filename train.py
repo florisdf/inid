@@ -14,8 +14,7 @@ from tqdm import tqdm
 import wandb
 
 from src.model import Recognizer
-from src.data import RecogDataset, TRAIN_SUBSET, QUERY_SUBSET,\
-    GALLERY_SUBSET, get_data_transforms
+from src.data import get_train_val_datasets, get_data_transforms
 from src.metrics import accuracy, pr_metrics, hard_pos_neg_scores
 from src.utils.inference import get_score_matrix, avg_ref_embs,\
     collate_with_three_crops, get_embeddings_three_crops
@@ -49,7 +48,7 @@ def run_training(
     label_key: str,
     image_key: str,
 
-    input_size: int,
+    square_size: int,
     rrc_scale: Tuple[float],
     rrc_ratio: Tuple[float],
     norm_mean: List[float],
@@ -67,48 +66,24 @@ def run_training(
 ):
     # Create datasets
     tfm_train, tfm_val = get_data_transforms(
-        input_size=input_size,
+        square_size=square_size,
         norm_mean=norm_mean,
         norm_std=norm_std,
         rrc_scale=rrc_scale,
         rrc_ratio=rrc_ratio,
         use_three_crop=use_three_crop,
     )
-    ds_train = RecogDataset(
-        subset=TRAIN_SUBSET,
-        transform=tfm_train,
-        n_refs=gal_num_refs,
-        rand_ref_seed=gal_rand_ref_seed,
+    ds_train, ds_gal, ds_quer = get_train_val_datasets(
+        data_csv_file=train_csv,
+        label_key=label_key,
+        image_key=image_key,
         num_folds=num_folds,
         val_fold=val_fold,
         k_fold_seed=k_fold_seed,
-        label_key=label_key,
-        image_key=image_key,
-        train_csv_file=train_csv,
-    )
-    ds_gal = RecogDataset(
-        subset=GALLERY_SUBSET,
-        transform=tfm_val,
         n_refs=gal_num_refs,
         rand_ref_seed=gal_rand_ref_seed,
-        num_folds=num_folds,
-        val_fold=val_fold,
-        k_fold_seed=k_fold_seed,
-        label_key=label_key,
-        image_key=image_key,
-        train_csv_file=train_csv,
-    )
-    ds_quer = RecogDataset(
-        subset=QUERY_SUBSET,
-        transform=tfm_val,
-        n_refs=gal_num_refs,
-        rand_ref_seed=gal_rand_ref_seed,
-        num_folds=num_folds,
-        val_fold=val_fold,
-        k_fold_seed=k_fold_seed,
-        label_key=label_key,
-        image_key=image_key,
-        train_csv_file=train_csv,
+        tfm_train=tfm_train,
+        tfm_val=tfm_val,
     )
 
     # Create data loaders
@@ -134,7 +109,7 @@ def run_training(
     )
 
     # Create model
-    num_classes = len(ds_train.label_to_idx)
+    num_classes = len(ds_train.label_to_int)
     model = Recognizer(
         model_name=model_name,
         num_classes=num_classes,
@@ -528,7 +503,7 @@ if __name__ == '__main__':
                         help='The device (cuda/cpu) to use.')
 
     parser.add_argument(
-        '--input_size',
+        '--square_size',
         default=224,
         help='The size to use in the data transform pipeline.',
         type=int,
@@ -581,7 +556,7 @@ if __name__ == '__main__':
         weight_decay=args.weight_decay,
         lr_warmup_steps=args.lr_warmup_steps,
 
-        input_size=args.input_size,
+        square_size=args.square_size,
         rrc_scale=args.rrc_scale,
         rrc_ratio=args.rrc_ratio,
         norm_mean=args.norm_mean,

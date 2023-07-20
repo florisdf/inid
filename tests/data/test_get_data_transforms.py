@@ -10,7 +10,7 @@ from src.data import get_data_transforms
 @pytest.fixture
 def transformed_imgs():
     tfm_train, tfm_val = get_data_transforms(
-        input_size=2,
+        square_size=2,
         norm_mean=[6, 12, 20],
         norm_std=[2, 3, 4],
         rrc_scale=(1, 1),
@@ -55,7 +55,7 @@ def test_norm(transformed_imgs):
 
 def test_three_crop_horizontal():
     _, tfm_val = get_data_transforms(
-        input_size=2,
+        square_size=2,
         norm_mean=[0, 0, 0],
         norm_std=[1, 1, 1],
         rrc_scale=(1, 1),
@@ -81,7 +81,7 @@ def test_three_crop_horizontal():
 
 def test_three_crop_vertical():
     _, tfm_val = get_data_transforms(
-        input_size=2,
+        square_size=2,
         norm_mean=[0, 0, 0],
         norm_std=[1, 1, 1],
         rrc_scale=(1, 1),
@@ -107,7 +107,7 @@ def test_three_crop_vertical():
 
 def test_val_crop_is_center_horizontal():
     _, tfm_val = get_data_transforms(
-        input_size=2,
+        square_size=2,
         norm_mean=[0, 0, 0],
         norm_std=[1, 1, 1],
         rrc_scale=(1, 1),
@@ -127,7 +127,7 @@ def test_val_crop_is_center_horizontal():
 
 def test_val_crop_is_center_vertical():
     _, tfm_val = get_data_transforms(
-        input_size=2,
+        square_size=2,
         norm_mean=[0, 0, 0],
         norm_std=[1, 1, 1],
         rrc_scale=(1, 1),
