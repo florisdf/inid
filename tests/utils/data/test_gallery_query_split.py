@@ -25,6 +25,31 @@ def test_no_sample_overlap():
         assert im not in df_gal['image'].values
 
 
+def test_complete():
+    df = pd.DataFrame([
+        {'label': 'A', 'image': 'A_0001.jpg'},
+        {'label': 'A', 'image': 'A_0002.jpg'},
+        {'label': 'A', 'image': 'A_0003.jpg'},
+        {'label': 'B', 'image': 'B_0001.jpg'},
+        {'label': 'B', 'image': 'B_0002.jpg'},
+        {'label': 'B', 'image': 'B_0003.jpg'},
+        {'label': 'C', 'image': 'C_0001.jpg'},
+        {'label': 'C', 'image': 'C_0002.jpg'},
+        {'label': 'C', 'image': 'C_0003.jpg'},
+    ])
+    df_gal, df_quer = split_gallery_query(
+        df,
+        n_refs=1,
+        seed=0,
+        label_key='label'
+    )
+
+    df_cat = pd.concat([
+        df_gal, df_quer
+    ]).sort_values(by='image').reset_index(drop=True)
+    assert (df_cat == df).all().all()
+
+
 def test_n_refs():
     df = pd.DataFrame([
         {'label': 'A', 'image': 'A_0001.jpg'},
