@@ -1,3 +1,5 @@
+from typing import Dict
+
 import torch
 from torch import Tensor
 import math
@@ -7,10 +9,23 @@ def hard_pos_neg_scores(
     scores: Tensor,
     query_labels: Tensor,
     gallery_labels: Tensor,
-):
+) -> Dict[str, Tensor]:
     """
-    Return the similarity scores between each query and the hardest negative
+    Computes the similarity scores between each query and the hardest negative
     and hardest positive in the gallery.
+
+    Args:
+        scores: The scores for each query (rows) and each gallery item
+            (columns).
+        query_labels: The true label of each query (rows of `scores`).
+        gallery_labels: The labels of the items in the gallery (columns of
+            `scores`).
+
+    Returns:
+        A dictionary with the following items:
+
+        - `'HardPosScores'`: The score of the hardest positive of each query.
+        - `'HardNegScores'`: The score of the hardest negative of each query.
     """
     # Subtract infinity from the positive labels, so we can find the
     # closest negative

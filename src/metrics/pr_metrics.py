@@ -1,12 +1,40 @@
-from typing import List, Union
+from typing import List, Union, Tuple, Dict
 
 import torch
 from torch import Tensor
 
 
-def pr_metrics(scores: Tensor, query_labels: Tensor, gallery_labels: Tensor):
-    """
-    Compute the precision-recall curve and related metrics.
+def pr_metrics(
+    scores: Tensor,
+    query_labels: Tensor,
+    gallery_labels: Tensor
+) -> Dict[str, Union[List[Tensor], Tensor]]:
+    """Computes the precision-recall curves and related metrics.
+
+    Args:
+        scores: The scores for each query (rows) and each gallery item
+            (columns).
+        query_labels: The true label of each query (rows of `scores`).
+        gallery_labels: The labels of the items in the gallery (columns of
+            `scores`).
+
+    Returns:
+        A dictionary containing the metrics. The dict contains the following
+        keys:
+
+        - `'Precisions'`: The precision values of the PR-curve of each query.
+        - `'Recalls'`: The recall values of the PR-curve of each query.
+        - `'Thresholds'`: The thresholds that correspond to each point on the
+          PR curve.
+        - `'AP'`: The average precision of each query.
+        - `'mAP'`: The mean of the average precisions of all queries.
+        - `'P@maxF1'`: The precision at the point on the PR curve with the
+          maximum F1 score for each query.
+        - `'R@maxF1'`: The recall at the point on the PR curve with the maximum
+          F1 score for each query.
+        - `'T@maxF1'`: The threshold at the point on the PR curve with the
+          maximum F1 score for each query.
+        - `'maxF1'`: The maximum F1 score for each query.
     """
     if not scores.shape[0] == len(query_labels):
         raise ValueError(
@@ -17,10 +45,10 @@ def pr_metrics(scores: Tensor, query_labels: Tensor, gallery_labels: Tensor):
             'Second dim of scores should equal the number of gallery items'
         )
 
-    target = query_labels[:, None] == gallery_labels
-    p_per_q, r_per_q, th_per_q = pr_curve_per_q(scores, target)
+    targets = query_labels[:, None] == gallery_labels
+    p_per_q, r_per_q, th_per_q = _pr_curve_per_q(scores, targets)
 
-    ap = ap_from_pr(
+    ap = _ap_from_pr(
         precision=p_per_q, recall=r_per_q,
         num_classes=len(p_per_q)
     )
@@ -28,7 +56,7 @@ def pr_metrics(scores: Tensor, query_labels: Tensor, gallery_labels: Tensor):
     mAP = ap.mean()
 
     p_at_max_f1, r_at_max_f1, th_at_max_f1, max_f1 = \
-        prtf_at_max_f1(p_per_q, r_per_q, th_per_q)
+        _prtf_at_max_f1(p_per_q, r_per_q, th_per_q)
 
     return {
         'Precisions': p_per_q,
@@ -43,8 +71,23 @@ def pr_metrics(scores: Tensor, query_labels: Tensor, gallery_labels: Tensor):
     }
 
 
-def pr_curve_per_q(preds: Tensor, target: Tensor):
-    tps, fps, thresh = binary_clf_curve_per_q(preds, target)
+def _pr_curve_per_q(
+    scores: Tensor,
+    targets: Tensor
+) -> Tuple[List[Tensor], List[Tensor], List[Tensor]]:
+    """Computes the PR curve for each query.
+
+    Args:
+        scores: The scores for each query (rows) and each gallery item
+            (columns).
+        targets: Boolean tensor of the same shape as `scores` indicating which
+            query-gallery pairs belong to the same class.
+
+    Returns:
+        A tuple of three lists: precisions, recalls and thresholds. The i-th
+        element of each list corresponds to the i-th query.
+    """
+    tps, fps, thresh = _binary_clf_curve_per_q(scores, targets)
     precision = tps / (tps + fps)
     recall = tps / tps.nan_to_num(nan=0).max(dim=1)[0][..., None]
 
@@ -64,7 +107,7 @@ def pr_curve_per_q(preds: Tensor, target: Tensor):
     r_per_q = []
     th_per_q = []
 
-    idxs_with_no_positives = torch.nonzero(~target.any(dim=1),
+    idxs_with_no_positives = torch.nonzero(~targets.any(dim=1),
                                            as_tuple=True)[0]
 
     for i, (p, r, th, nan_mask) in enumerate(zip(precision, recall, thresh,
@@ -85,56 +128,82 @@ def pr_curve_per_q(preds: Tensor, target: Tensor):
     return p_per_q, r_per_q, th_per_q
 
 
-def binary_clf_curve_per_q(preds: Tensor, target: Tensor):
+def _binary_clf_curve_per_q(
+    scores: Tensor,
+    targets: Tensor
+) -> Tuple[Tensor, Tensor, Tensor]:
     """
-    Get the number of true positives and false positives for each possible
+    Gets the number of true positives and false positives for each possible
     threshold for each query.
 
     Adapted from
     torchmetrics/functional/classification/precision_recall_curve.py
-    """
-    idxs = torch.argsort(preds, descending=True)
-    preds = torch.gather(preds, 1, idxs)
-    target = torch.gather(target, 1, idxs)
 
-    tps = torch.cumsum(target, dim=1).to(torch.float)
-    fps = (torch.arange(1, target.size(1) + 1)
+    Args:
+        scores: The scores for each query (rows) and each gallery item
+            (columns).
+        targets: Boolean tensor of the same shape as `scores` indicating which
+            query-gallery pairs belong to the same class.
+
+    Returns:
+        A tuple containing the true positives, false positives and scores for
+        each query. The tensors are sorted according to descending scores.
+    """
+    idxs = torch.argsort(scores, descending=True)
+    scores = torch.gather(scores, 1, idxs)
+    targets = torch.gather(targets, 1, idxs)
+
+    tps = torch.cumsum(targets, dim=1).to(torch.float)
+    fps = (torch.arange(1, targets.size(1) + 1)
            .type_as(tps)
-           .repeat(target.size(0), 1)
+           .repeat(targets.size(0), 1)
            - tps)
 
     # Extract indices associated with distinct values.
-    distinct_val_idxs = torch.where(preds[:, :-1] - preds[:, 1:])
-    distinct_val_mask = torch.zeros(preds.shape).to(torch.bool)
+    distinct_val_idxs = torch.where(scores[:, :-1] - scores[:, 1:])
+    distinct_val_mask = torch.zeros(scores.shape).to(torch.bool)
     distinct_val_mask[distinct_val_idxs] = True
     # "Concatenate" a value for the end of the curve
     distinct_val_mask[:, -1] = True
 
     tps[~distinct_val_mask] = float('nan')
     fps[~distinct_val_mask] = float('nan')
-    preds[~distinct_val_mask] = float('nan')
+    scores[~distinct_val_mask] = float('nan')
 
     # stop when full recall is attained
     last_inds = torch.argmax(
         (tps == tps[:, -1].reshape(-1, 1)).to(torch.float),
         dim=1
     )
-    mask = torch.zeros(preds.shape).to(torch.bool)
+    mask = torch.zeros(scores.shape).to(torch.bool)
     mask[torch.arange(0, len(tps)), last_inds] = True
     mask = torch.cumsum(mask, dim=1).roll(1).to(torch.bool)
     mask[:, 0] = False
 
     tps[mask] = float('nan')
     fps[mask] = float('nan')
-    preds[mask] = float('nan')
+    scores[mask] = float('nan')
 
-    return tps, fps, preds
+    return tps, fps, scores
 
 
-def prtf_at_max_f1(precisions, recalls, thresholds):
+def _prtf_at_max_f1(
+    precisions: Tensor,
+    recalls: Tensor,
+    thresholds: Tensor
+) -> Tuple[Tensor, Tensor, Tensor, Tensor]:
     """
-    Return the precision, recall, threshold and F1-score at the max F1-score
+    Returns the precision, recall, threshold and F1-score at the max F1-score
     for each query.
+
+    Args:
+        precisions: The precision values for each query.
+        recalls: The recall values for each query.
+        thresholds: The respective threshold values.
+
+    Returns:
+        A tuple containing the precision, recall, threshold and F1-score for
+        each query.
     """
     f1s = [
         2 * (p * r)/(p + r)
@@ -161,21 +230,19 @@ def prtf_at_max_f1(precisions, recalls, thresholds):
             torch.tensor(max_f1).nan_to_num())
 
 
-def ap_from_pr(
+def _ap_from_pr(
     precision: Tensor,
     recall: Tensor,
     num_classes: int,
 ) -> Union[List[Tensor], Tensor]:
-    """
-    Compute the average precision score from precision and recall.
+    """Computes the average precision score from precision and recall.
 
     Copied from torchmetrics.functional.classification.average_precision
 
     Args:
         precision: precision values
         recall: recall values
-        num_classes: integer with number of classes. Not nessesary to provide
-            for binary problems.
+        num_classes: integer with number of classes.
     """
 
     # Return the step function integral

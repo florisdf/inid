@@ -18,14 +18,15 @@ def get_train_val_datasets(
     tfm_train: Callable = None,
     tfm_val: Callable = None,
 ) -> Tuple[DataFrameDataset, DataFrameDataset, DataFrameDataset]:
-    """Creates the training and validation datasets for recognition training.
+    """Creates training and validation datasets for recognition training.
 
     The datasets are created based on a CSV file that contains all image paths
     with a corresponding label. The images are split up into a training and a
     validation subset. The data split is based on labels, so no label will
     occur both in the training and in the validation subset. We do this to
     reflect a real-world recognition scenario where the labels used during
-    training do not occur during inference.
+    training typically do not occur during inference, emphasizing the need for
+    generalizable embeddings.
 
     For the train-validation split, we use a folds-based approach that allows
     for easy K-fold cross-validation. How the dataset is split is determined by
@@ -40,8 +41,8 @@ def get_train_val_datasets(
     The validation set is further split into a query and a gallery set. These
     sets contain the same labels but different images. The gallery set provides
     references with which the images in the query set should be compared. This
-    is again to reflect a real-world scenario where a gallery of references is
-    used to identify a given query.
+    is again to reflect a real-world scenario where a gallery of labeled
+    references is used to identify a given query.
 
     The query-gallery split is determined by `n_refs` (the number of references
     per label) and `rand_ref_seed` (the seed for the random generator that

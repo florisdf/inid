@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 
 import torch
 from torch import nn
@@ -38,13 +38,56 @@ SUPPORTED_MODELS = [
 
 
 class Recognizer(nn.Module):
+    """A recognition model consisting of a backbone and a classifier.
+
+    The task of the backbone is to compute an embedding for a given input
+    image. During training, the embedding is passed through the classifier (a
+    single fully-connected layer). Training the classifier acts as a proxy
+    objective for the optimization of the backbone.
+
+    During inference (or evaluation), the classifier is ignored and the model
+    returns the embedding that comes out of the backbone.
+
+    We support all classifier models available in the torchvision library,
+    apart from the squeezenet-based models. The entire list of supported models
+    is available as the global variable `SUPPORTED_MODELS`.
+
+    We normalize both the embeddings as the classifier weights. As such,
+    the columns in the classifier's weights can be interpreted as reference
+    embeddings for the corresponding classes and the optimization of the
+    classifier directly optimizes the cosine similarity. As such, after
+    sufficient training, extracted embeddings can be easily compared via a dot
+    product.
+
+    Attributes:
+        backbone: The backbone model.
+        classifier: The fully-connected layer that acts as the classifier
+            during training.
+    """
     def __init__(
         self,
         model_name: str,
         num_classes: int,
-        weights: Optional[Weights] = None,
+        weights: Optional[Union[Weights, str]] = None,
         clf_bias: bool = False,
     ):
+        """
+        Args:
+            model_name: The name of the model to use. The classification layer
+                of this model will be extracted and replaced by a
+                fully-connected layer that outputs the desired number of
+                classes (see `num_classes`). Note that we normalize the weights
+                of the fully connected layer so that the columns have norm 1.
+            num_classes: The number of classes outputted by the classifier.
+            weights: The pretrained weights to initialize the model with. If
+                `None`, the weights are randomly initialized. See also
+                <https://pytorch.org/vision/stable/models.html>.
+            clf_bias: If `True`, use a bias in the classification layer. Using
+                bias in the fully connected layer together with weight
+                normalization can worsen the results (see
+                <https://dl.acm.org/doi/10.1145/3123266.3123359>), so we
+                suggest to keep it turned off.
+        """
         super().__init__()
 
         if model_name not in SUPPORTED_MODELS:
@@ -56,7 +99,21 @@ class Recognizer(nn.Module):
         self.backbone, self.classifier = split_backbone_classifier(model)
         self._ult_clf = get_ultimate_classifier(self.classifier)
 
-    def forward(self, x: torch.Tensor):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Passes a batch of input images through the model.
+
+        During training, the input is passed through the backbone and the
+        classifier, and the classification logits are returned. During
+        inference, only the backbone is used and the extracted embeddings are
+        returned.
+
+        Args:
+            x: The batch of input images.
+
+        Returns:
+            The classification logits during training, and the embeddings
+            during inference (evaluation).
+        """
         if self.training:
             self._normalize_clf_layer()
 
@@ -74,6 +131,7 @@ class Recognizer(nn.Module):
         return x
 
     def _normalize_clf_layer(self):
+        """Normalizes the weights of the classifier."""
         self._ult_clf.weight.data = (
             self._ult_clf.weight.data
             / torch.norm(self._ult_clf.weight.data, dim=1,

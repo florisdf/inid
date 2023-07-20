@@ -1,9 +1,23 @@
+from typing import Any
+
+
 MAX = 'max'
 MIN = 'min'
 
 
 class RunningExtrema:
+    """Keeps a running extremum (max/min) of a set of named values.
+
+    Attributes:
+        extremum: The extremum (max/min) to use.
+        extrema_dict: A dictionary with the running extremum per key. The key
+            is prepended with 'Max' or 'Min', depending on the choses extremum.
+    """
     def __init__(self, extremum: str):
+        """
+        Args:
+            extremum: The extremum (max/min) to use.
+        """
         if extremum not in [MAX, MIN]:
             raise ValueError(
                 f'Unknown extremum "{extremum}". '
@@ -12,7 +26,13 @@ class RunningExtrema:
         self._extrema_dict = {}
         self.extremum = extremum
 
-    def is_new_extremum(self, key, val):
+    def is_new_extremum(self, key: str, val: Any):
+        """Returns if the value is a new extremum for the key.
+
+        Args:
+            key: The key.
+            val: The value.
+        """
         if key not in self._extrema_dict:
             try:
                 # Check if the value can be compared and returns a (single)
@@ -30,15 +50,24 @@ class RunningExtrema:
             else new <= curr
         )
 
-    def update(self, key, val):
+    def update(self, key: str, val: Any):
+        """
+        Replaces the running value of the given key if the value is a new
+        extremum.
+        """
         if self.is_new_extremum(key, val):
             self._extrema_dict[key] = val
 
     def update_dict(self, d: dict):
+        """
+        Replaces the running value of those keys in the given dict that have
+        a new extremum as value.
+        """
         for k, v in d.items():
             self.update(k, v)
 
     def clear(self):
+        """Clears all running values."""
         self._extrema_dict = {}
 
     @property

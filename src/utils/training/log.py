@@ -1,8 +1,22 @@
+from typing import Any, Dict, Optional
 import torch
 import wandb
 
 
-def log(log_dict, epoch_idx, batch_idx=None, section=None):
+def log(
+    log_dict: Dict[str, Any],
+    epoch_idx: int,
+    batch_idx: Optional[int] = None,
+    section: Optional[int] = None
+):
+    """Logs the given dict to WandB.
+
+    Args:
+        log_dict: The dictionary to log.
+        epoch_idx: The epoch number.
+        batch_idx: The batch number.
+        section: The section to put the logs in.
+    """
     def get_key(k):
         if section is None:
             return k
