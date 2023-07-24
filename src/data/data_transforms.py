@@ -29,10 +29,10 @@ def get_data_transforms(
             for random resized cropping during training.
         rrc_ratio: Lower and upper bound of the aspect ratio that is randomly
             selected for random resized cropping during training.
-        use_three_crop: If `True`, use three-crop cropping during validation.
+        use_three_crop: If ``True``, use three-crop cropping during validation.
 
     Returns:
-        A tuple `(train_tfm, val_tfm)` containing the training and validation
+        A tuple ``(train_tfm, val_tfm)`` containing the training and validation
         transforms.
     """
     tfm_train = Compose([

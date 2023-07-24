@@ -17,9 +17,9 @@ def accuracy(
     Args:
         scores: The scores for each query (rows) and each gallery item
             (columns).
-        query_labels: The true label of each query (rows of `scores`).
+        query_labels: The true label of each query (rows of ``scores``).
         gallery_labels: The labels of the items in the gallery (columns of
-            `scores`).
+            ``scores``).
 
     Returns:
         The top-1 accuracy.
@@ -41,9 +41,9 @@ def top_k_accuracy(
     Args:
         scores: The scores for each query (rows) and each gallery item
             (columns).
-        query_labels: The true label of each query (rows of `scores`).
+        query_labels: The true label of each query (rows of ``scores``).
         gallery_labels: The labels of the items in the gallery (columns of
-            `scores`).
+            ``scores``).
 
     Returns:
         The top-k accuracy.
@@ -64,9 +64,9 @@ def top_all_accuracy(
     Args:
         scores: The scores for each query (rows) and each gallery item
             (columns).
-        query_labels: The true label of each query (rows of `scores`).
+        query_labels: The true label of each query (rows of ``scores``).
         gallery_labels: The labels of the items in the gallery (columns of
-            `scores`).
+            ``scores``).
 
     Returns:
         The top-all accuracy.

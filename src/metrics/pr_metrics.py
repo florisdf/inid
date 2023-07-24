@@ -14,27 +14,27 @@ def pr_metrics(
     Args:
         scores: The scores for each query (rows) and each gallery item
             (columns).
-        query_labels: The true label of each query (rows of `scores`).
+        query_labels: The true label of each query (rows of ``scores``).
         gallery_labels: The labels of the items in the gallery (columns of
-            `scores`).
+            ``scores``).
 
     Returns:
         A dictionary containing the metrics. The dict contains the following
         keys:
 
-        - `'Precisions'`: The precision values of the PR-curve of each query.
-        - `'Recalls'`: The recall values of the PR-curve of each query.
-        - `'Thresholds'`: The thresholds that correspond to each point on the
+        - ``'Precisions'``: The precision values of the PR-curve of each query.
+        - ``'Recalls'``: The recall values of the PR-curve of each query.
+        - ``'Thresholds'``: The thresholds that correspond to each point on the
           PR curve.
-        - `'AP'`: The average precision of each query.
-        - `'mAP'`: The mean of the average precisions of all queries.
-        - `'P@maxF1'`: The precision at the point on the PR curve with the
+        - ``'AP'``: The average precision of each query.
+        - ``'mAP'``: The mean of the average precisions of all queries.
+        - ``'P@maxF1'``: The precision at the point on the PR curve with the
           maximum F1 score for each query.
-        - `'R@maxF1'`: The recall at the point on the PR curve with the maximum
-          F1 score for each query.
-        - `'T@maxF1'`: The threshold at the point on the PR curve with the
+        - ``'R@maxF1'``: The recall at the point on the PR curve with the
           maximum F1 score for each query.
-        - `'maxF1'`: The maximum F1 score for each query.
+        - ``'T@maxF1'``: The threshold at the point on the PR curve with the
+          maximum F1 score for each query.
+        - ``'maxF1'``: The maximum F1 score for each query.
     """
     if not scores.shape[0] == len(query_labels):
         raise ValueError(
@@ -80,8 +80,8 @@ def _pr_curve_per_q(
     Args:
         scores: The scores for each query (rows) and each gallery item
             (columns).
-        targets: Boolean tensor of the same shape as `scores` indicating which
-            query-gallery pairs belong to the same class.
+        targets: Boolean tensor of the same shape as ``scores`` indicating
+            which query-gallery pairs belong to the same class.
 
     Returns:
         A tuple of three lists: precisions, recalls and thresholds. The i-th
@@ -142,8 +142,8 @@ def _binary_clf_curve_per_q(
     Args:
         scores: The scores for each query (rows) and each gallery item
             (columns).
-        targets: Boolean tensor of the same shape as `scores` indicating which
-            query-gallery pairs belong to the same class.
+        targets: Boolean tensor of the same shape as ``scores`` indicating
+            which query-gallery pairs belong to the same class.
 
     Returns:
         A tuple containing the true positives, false positives and scores for

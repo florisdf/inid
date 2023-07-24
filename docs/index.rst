@@ -8,9 +8,9 @@ Welcome to Deep Visual Recognition Toolbox's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Notes
+   :caption: User guide
 
-   notes/01-getting_started
+   guide/01-getting_started
 
 .. toctree::
    :maxdepth: 3
@@ -20,7 +20,6 @@ Welcome to Deep Visual Recognition Toolbox's documentation!
    metrics <api/metrics>
    model <api/model>
    utils <api/utils>
-   
 
 
 Indices and tables

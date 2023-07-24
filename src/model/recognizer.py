@@ -50,7 +50,7 @@ class Recognizer(nn.Module):
 
     We support all classifier models available in the torchvision library,
     apart from the squeezenet-based models. The entire list of supported models
-    is available as the global variable `SUPPORTED_MODELS`.
+    is available as the global variable ``SUPPORTED_MODELS``.
 
     We normalize both the embeddings as the classifier weights. As such,
     the columns in the classifier's weights can be interpreted as reference
@@ -76,14 +76,15 @@ class Recognizer(nn.Module):
             model_name: The name of the model to use. The classification layer
                 of this model will be extracted and replaced by a
                 fully-connected layer that outputs the desired number of
-                classes (see `num_classes`). Note that we normalize the weights
-                of the fully connected layer so that the columns have norm 1.
+                classes (see ``num_classes``). Note that we normalize the
+                weights of the fully connected layer so that the columns have
+                norm 1.
             num_classes: The number of classes outputted by the classifier.
             weights: The pretrained weights to initialize the model with. If
-                `None`, the weights are randomly initialized. See also
+                ``None``, the weights are randomly initialized. See also
                 <https://pytorch.org/vision/stable/models.html>.
-            clf_bias: If `True`, use a bias in the classification layer. Using
-                bias in the fully connected layer together with weight
+            clf_bias: If ``True``, use a bias in the classification layer.
+                Using bias in the fully connected layer together with weight
                 normalization can worsen the results (see
                 <https://dl.acm.org/doi/10.1145/3123266.3123359>), so we
                 suggest to keep it turned off.

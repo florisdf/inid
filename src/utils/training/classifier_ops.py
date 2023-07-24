@@ -12,16 +12,17 @@ def update_classifier(
     """Updates the classifier according to the given number of classes.
 
     The classifier (fully connected layer) contained in the given model is
-    updated in-place such that it outputs `num_classes` elements. This function
-    supports all models that are available from `torchvision.models`.
+    updated in-place such that it outputs ``num_classes`` elements. This
+    function supports all models that are available from
+    ``torchvision.models``.
 
     Args:
         model: The model to update. We assume that the last layer of the model
-            is a classifier. This can be a single `nn.Linear` (like ResNet), or
-            an `nn.Sequential` with an `nn.Linear` as final layer (like
+            is a classifier. This can be a single ``nn.Linear`` (like ResNet),
+            or an ``nn.Sequential`` with an ``nn.Linear`` as final layer (like
             AlexNet).
         num_classes: The new number of classes for the classifier.
-        bias: If `True`, use a bias in the updated classifier. Else, don't.
+        bias: If ``True``, use a bias in the updated classifier. Else, don't.
 
     Returns:
         The updated model.
@@ -51,8 +52,8 @@ def split_backbone_classifier(
 
     Args:
         model: The model to split. We assume that the last layer of the model
-            is a classifier. This can be a single `nn.Linear` (like ResNet), or
-            an `nn.Sequential` with an `nn.Linear` as final layer (like
+            is a classifier. This can be a single ``nn.Linear`` (like ResNet),
+            or an ``nn.Sequential`` with an ``nn.Linear`` as final layer (like
             AlexNet).
     """
     clf_path = get_path_to_ultimate_classifier(model)
@@ -71,14 +72,15 @@ def get_path_to_ultimate_classifier(
 
     The path is returned as a list of strings, where each element is the
     attribute to get from the parent module to retrieve the corresponding
-    module. To get the module from this path, use `get_module_at_path(model,
-    path)`. To change this module with another module, use
-    `set_module_at_path(module, path, new_module)`.
+    module. To get the module from this path, use ``get_module_at_path(model,
+    path)``. To change this module with another module, use
+    ``set_module_at_path(module, path, new_module)``.
 
     Args:
         model: The model. We assume that the last layer of the model is a
-            classifier. This can be a single `nn.Linear` (like ResNet) or an
-            `nn.Sequential` with an `nn.Linear` as final layer (like AlexNet)
+            classifier. This can be a single ``nn.Linear`` (like ResNet) or an
+            ``nn.Sequential`` with an ``nn.Linear`` as final layer (like
+            AlexNet)
     """
     named_children = list(model.named_children())
     if len(named_children) == 0:
@@ -106,8 +108,9 @@ def get_ultimate_classifier(
 
     Args:
         model: The model. We assume that the last layer of the model is a
-            classifier. This can be a single `nn.Linear` (like ResNet), or an
-            `nn.Sequential` with an `nn.Linear` as final layer (like AlexNet).
+            classifier. This can be a single ``nn.Linear`` (like ResNet), or an
+            ``nn.Sequential`` with an ``nn.Linear`` as final layer (like
+            AlexNet).
     """
     path = get_path_to_ultimate_classifier(model)
     return get_module_at_path(model, path)

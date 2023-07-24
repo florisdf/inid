@@ -21,7 +21,8 @@ author = 'Floris De Feyter'
 extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.autodoc',
-    'sphinx.ext.autosummary'
+    'sphinx.ext.autosummary',
+    'sphinx.ext.napoleon'
 ]
 
 templates_path = ['_templates']

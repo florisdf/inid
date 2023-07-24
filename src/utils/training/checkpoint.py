@@ -13,9 +13,9 @@ def create_checkpoints(
 ):
     """Creates checkpoints for the model, labeled as 'best' and/or 'last'.
 
-    For both `save_best` and `save_last`, a separate checkpoint is created. If
-    neither `save_best` or `save_last` is `True`, no checkpoint is created. If
-    either is `True`, only a single checkpoint is created.
+    For both ``save_best`` and ``save_last``, a separate checkpoint is created.
+    If neither ``save_best`` or ``save_last`` is ``True``, no checkpoint is
+    created. If either is ``True``, only a single checkpoint is created.
 
     Args:
         model: The model to create a checkpoint for.

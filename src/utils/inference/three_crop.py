@@ -6,7 +6,7 @@ from torchvision.transforms.functional import center_crop, crop
 
 
 class ThreeCrop:
-    """Class wrapper around `three_crop()`."""
+    """Class wrapper around ``three_crop()``."""
     def __call__(
         self,
         img: Tensor
@@ -27,8 +27,7 @@ def three_crop(
         img: The image to convert into three-crop crops.
 
     Returns:
-        A tuple with three square images: the start crop, center crop and end
-        crop.
+        The start crop, center crop and end crop.
     """
     _, image_height, image_width = img.shape
     size = min(image_height, image_width)
@@ -45,22 +44,22 @@ def collate_with_three_crops(
 ) -> Tuple[Tensor, Tensor]:
     """Collate a batch containing three-crop crops.
 
-    Converts a list of tuples `(three_crops, label)` into a single tuple
-    `(three_crops_batch, label_batch)`, where `three_crop_batch` is a tensor of
-    shape `B x T x C x H x W` and `label_batch` is a tensor of shape `B`, with
-    `B` the batch size, `T = 3` for the three crops, `C` the number of
-    channels, `H = W` the height and width of the images.
+    Converts a list of tuples ``(three_crops, label)`` into a single tuple
+    ``(three_crops_batch, label_batch)``, where ``three_crop_batch`` is a
+    tensor of shape ``B x T x C x H x W`` and ``label_batch`` is a tensor of
+    shape ``B``, with ``B`` the batch size, ``T = 3`` for the three crops,
+    ``C`` the number of channels, ``H = W`` the height and width of the images.
 
     Args:
-        batch: A list of tuples `(three_crops, label)` containing three-crop
+        batch: A list of tuples ``(three_crops, label)`` containing three-crop
             crops and their corresponding label.
 
     Returns:
-        A single tuple `(three_crops_batch, label_batch)`, where
-        `three_crop_batch` is a tensor of shape `B x T x C x H x W` and
-        `label_batch` is a tensor of shape `B`, with `B` the batch size, `T =
-        3` for the three crops, `C` the number of channels, `H = W` the height
-        and width of the images.
+        A single tuple ``(three_crops_batch, label_batch)``, where
+        ``three_crop_batch`` is a tensor of shape ``B x T x C x H x W`` and
+        ``label_batch`` is a tensor of shape ``B``, with ``B`` the batch size,
+        ``T = 3`` for the three crops, ``C`` the number of channels, ``H = W``
+        the height and width of the images.
     """
     three_crop_label_list = [
         (three_crops, label) for three_crops, label in batch
@@ -84,9 +83,9 @@ def get_embeddings_three_crops(
     Args:
         model: The model to use for computing the embedding of a batch of
             images.
-        batch: A batch of shape `B x T x C x H x W` and `label_batch` is a
-            tensor of shape `B`, with `B` the batch size, `T = 3` for the
-            three crops, `C` the number of channels, `H = W` the height and
+        batch: A batch of shape ``B x T x C x H x W`` and ``label_batch`` is a
+            tensor of shape ``B``, with ``B`` the batch size, ``T = 3`` for the
+            three crops, ``C`` the number of channels, ``H = W`` the height and
             width of the images.
 
     Returns:

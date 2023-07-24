@@ -30,13 +30,13 @@ def get_train_val_datasets(
 
     For the train-validation split, we use a folds-based approach that allows
     for easy K-fold cross-validation. How the dataset is split is determined by
-    `num_folds` (the number of folds), `val_fold` (which fold to use for
-    validation) and `k_fold_seed` (the seed used for the random generator that
-    shuffles the labels before creating the folds). For example, when setting
-    `num_folds = 5`, each value for `val_fold` from 0 to 4 gives rise to
-    another validation set and another training set. Training and evaluation
-    with each of these different combinations of train and validation datasets,
-    thus comes down to a 5-fold cross validation.
+    ``num_folds`` (the number of folds), ``val_fold`` (which fold to use for
+    validation) and ``k_fold_seed`` (the seed used for the random generator
+    that shuffles the labels before creating the folds). For example, when
+    setting ``num_folds = 5``, each value for ``val_fold`` from 0 to 4 gives
+    rise to another validation set and another training set. Training and
+    evaluation with each of these different combinations of train and
+    validation datasets, thus comes down to a 5-fold cross validation.
 
     The validation set is further split into a query and a gallery set. These
     sets contain the same labels but different images. The gallery set provides
@@ -44,9 +44,9 @@ def get_train_val_datasets(
     is again to reflect a real-world scenario where a gallery of labeled
     references is used to identify a given query.
 
-    The query-gallery split is determined by `n_refs` (the number of references
-    per label) and `rand_ref_seed` (the seed for the random generator that
-    shuffles the data before splitting).
+    The query-gallery split is determined by ``n_refs`` (the number of
+    references per label) and ``rand_ref_seed`` (the seed for the random
+    generator that shuffles the data before splitting).
 
     Args:
         data_csv_file: The path of the CSV file containing the images and
@@ -68,8 +68,7 @@ def get_train_val_datasets(
         tfm_val: The transform to apply to the validation images.
 
     Returns:
-        A tuple with three datasets: the training dataset, the gallery dataset
-        and the query dataset.
+        The training dataset, the gallery dataset and the query dataset.
     """
     df = pd.read_csv(data_csv_file)
 

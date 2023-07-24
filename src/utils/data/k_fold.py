@@ -13,11 +13,11 @@ def label_based_k_fold_trainval_split(
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Splits the given DataFrame into a train and validation subset.
 
-    The subsets are composed by shuffling the labels in the DataFrame,
-    using random seed `seed`. The labels are then split into `num_folds`
-    folds, where each label can only be in a single fold. We then choose
-    one fold for validation (as given by `val_fold`) and the other
-    `num_folds - 1` folds for training.
+    The subsets are composed by shuffling the labels in the DataFrame, using
+    random seed ``seed``. The labels are then split into ``num_folds`` folds,
+    where each label can only be in a single fold. We then choose one fold for
+    validation (as given by ``val_fold``) and the other ``num_folds - 1`` folds
+    for training.
 
     Args:
         df: The DataFrame to split.

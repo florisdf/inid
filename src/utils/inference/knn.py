@@ -19,7 +19,7 @@ def knn(
         scores: The scores for each query (rows) and each gallery item
             (columns).
         gallery_labels: The labels of the items in the gallery (columns of
-            `scores`).
+            ``scores``).
         k: The number of nearest neighbours to consider.
 
     Returns:
@@ -40,7 +40,7 @@ def top_k(
         scores: The scores for each query (rows) and each gallery item
             (columns).
         gallery_labels: The labels of the items in the gallery (columns of
-            `scores`).
+            ``scores``).
         k: The number of nearest neighbours to consider.
 
     Returns:

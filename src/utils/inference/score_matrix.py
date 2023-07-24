@@ -27,11 +27,11 @@ def get_score_matrix(
 
     The model should return a batch of embeddings when calling it with a batch
     of (transformed) images. You can also pass in a custom function
-    `get_embeddings_fn(model, imgs)` that takes the model and the batch of
+    ``get_embeddings_fn(model, imgs)`` that takes the model and the batch of
     images as input and returns the embeddings.
 
     Optionally, the embeddings of the gallery can be aggregated (e.g. averaged
-    per class) with a custom `agg_gal_fn(gal_embeddings, gal_labels)` which
+    per class) with a custom ``agg_gal_fn(gal_embeddings, gal_labels)`` which
     takes the gallery embeddings and labels and returns their aggregated
     versions.
 
@@ -39,10 +39,10 @@ def get_score_matrix(
         model: The model used for embedding extraction.
         device: The device on which to perform the computations.
         dl_gal: The data loader for the gallery data. It should yield a tuple
-            `(imgs, labels)` containing the batch of images and labels when
+            ``(imgs, labels)`` containing the batch of images and labels when
             iterating over it.
         dl_quer: The data loader for the query data. It should yield a tuple
-            `(imgs, labels)` containing the batch of images and labels when
+            ``(imgs, labels)`` containing the batch of images and labels when
             iterating over it.
         agg_gal_fn: A function that aggregates the gallery embeddings and
             labels. It should take two arguments: the gallery embeddings and
@@ -51,8 +51,8 @@ def get_score_matrix(
             It should take two arguments: the model and the image batch.
 
     Returns:
-        A tuple with three elements: the score matrix, the labels of the
-        queries (rows) and the labels of the gallery items (columns).
+        The score matrix, the labels of the queries (rows) and the labels of
+        the gallery items (columns).
     """
     assert not model.training
     model = model.to(device)
@@ -102,7 +102,7 @@ def sort_scores(
         scores: The scores for each query (rows) and each gallery item
             (columns).
         gallery_labels: The labels of the items in the gallery (columns of
-            `scores`).
+            ``scores``).
 
     Returns:
         A tuple with the sorted scores and labels.

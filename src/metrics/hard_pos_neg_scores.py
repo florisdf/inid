@@ -17,15 +17,15 @@ def hard_pos_neg_scores(
     Args:
         scores: The scores for each query (rows) and each gallery item
             (columns).
-        query_labels: The true label of each query (rows of `scores`).
+        query_labels: The true label of each query (rows of ``scores``).
         gallery_labels: The labels of the items in the gallery (columns of
-            `scores`).
+            ``scores``).
 
     Returns:
-        A dictionary with the following items:
+        A dictionary with the following items
 
-        - `'HardPosScores'`: The score of the hardest positive of each query.
-        - `'HardNegScores'`: The score of the hardest negative of each query.
+        - ``'HardPosScores'``: The score of the hardest positive of each query.
+        - ``'HardNegScores'``: The score of the hardest negative of each query.
     """
     # Subtract infinity from the positive labels, so we can find the
     # closest negative
