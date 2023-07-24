@@ -4,3 +4,5 @@ __pycache__
 .ipynb_checkpoints
 data/Pokemon
 wandb
+docs/_build
+.DS_Store

@@ -90,3 +90,25 @@ def get_score_matrix(
     quer_labels = torch.cat(quer_labels)
 
     return scores, quer_labels, gal_labels
+
+
+def sort_scores(
+    scores: torch.Tensor,
+    gallery_labels: torch.Tensor
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Sorts the scores and labels according to descending score.
+
+    Args:
+        scores: The scores for each query (rows) and each gallery item
+            (columns).
+        gallery_labels: The labels of the items in the gallery (columns of
+            `scores`).
+
+    Returns:
+        A tuple with the sorted scores and labels.
+    """
+    sorted_idxs = torch.argsort(scores, dim=1, descending=True)
+    sorted_scores = torch.gather(scores, dim=1, index=sorted_idxs)
+    sorted_labels = torch.gather(gallery_labels.expand_as(sorted_idxs),
+                                 dim=1, index=sorted_idxs)
+    return sorted_scores, sorted_labels
