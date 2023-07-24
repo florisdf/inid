@@ -15,7 +15,7 @@ class DataFrameDataset(Dataset):
         df: The DataFrame containing the image paths and labels.
         label_key: The column in the DataFrame that contains the label of each
             image.
-        image_key: The column in the DataFrame that contains th image path of
+        image_key: The column in the DataFrame that contains the image path of
             each image.
         label_to_int: A dictionary that maps the label to a unique integer.
         transform: A transform to apply to the image before returning it.
