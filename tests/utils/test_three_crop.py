@@ -2,7 +2,7 @@ import torch
 from torchvision.transforms.functional import to_tensor
 from PIL import Image
 
-from src.utils.inference import three_crop, collate_with_three_crops,\
+from inid.utils import three_crop, collate_with_three_crops,\
     get_embeddings_three_crops
 
 

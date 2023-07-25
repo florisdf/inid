@@ -1,5 +1,10 @@
 # Getting started
 
+## Installation
+
+
+## Quickstart
+
 
 ## Creating a training and validation dataset
 
@@ -91,10 +96,11 @@ Let's discuss the arguments:
 - Finally, with the ``bias`` argument, you can choose to turn on the bias. We suggest to keep it off, however (the default).
 ```
 
-## Defining evaluation metrics
+## Evaluating predictions
 
 
-## Running the training
+## Some extra utilities
 
-
-## Inspecting logs
+- `ThreeCrop`
+- `RunningExtrema`
+- `avg_ref_embs`

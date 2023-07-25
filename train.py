@@ -8,18 +8,18 @@ from torch import nn
 from torch.optim import Optimizer, SGD
 from torch.optim.lr_scheduler import LRScheduler, LinearLR
 from torch.utils.data import DataLoader
-from torchvision.models._api import Weights
 from torchvision import models
+from torchvision.models._api import Weights
+from torchvision.transforms import CenterCrop, Compose, ToTensor, Lambda,\
+    Normalize, RandomResizedCrop, Resize
 from tqdm import tqdm
 import wandb
 
 from inid.model import Recognizer
-from inid.data import get_train_val_datasets, get_data_transforms
-from inid.metrics import accuracy, pr_metrics, hard_pos_neg_scores
-from inid.utils.inference import get_score_matrix, avg_ref_embs,\
-    collate_with_three_crops, get_embeddings_three_crops
-from inid.utils.training import create_checkpoints, RunningExtrema,\
-    MAX, MIN
+from inid.data import get_train_val_datasets
+from inid.eval import accuracy, pr_metrics, hard_pos_neg_scores, score_matrix
+from inid.utils import RunningExtrema, MAX, MIN, collate_with_three_crops,\
+    get_embeddings_three_crops, avg_ref_embs, ThreeCrop
 
 
 def run_training(
@@ -253,7 +253,7 @@ def validation_epoch(
     get_embeddings_fn: Optional[Callable] = None
 ):
     # Compute score matrix and corresponding labels
-    scores, quer_labels, gal_labels = get_score_matrix(
+    scores, quer_labels, gal_labels = score_matrix(
         model,
         device,
         dl_val_gal,
@@ -262,7 +262,7 @@ def validation_epoch(
     )
     # Compute score matrix and corresponding labels when using average
     # reference embeddings in the gallery
-    scores_avg_refs, _, gal_labels_avg_refs = get_score_matrix(
+    scores_avg_refs, _, gal_labels_avg_refs = score_matrix(
         model,
         device,
         dl_val_gal,
@@ -351,6 +351,98 @@ def log(
         if batch_idx is not None:
             wandb_dict['batch_idx'] = batch_idx
         wandb.log(wandb_dict)
+
+
+def create_checkpoints(
+    model: nn.Module,
+    run_name: str,
+    ckpt_dir: Path,
+    save_best: bool = False,
+    save_last: bool = False,
+):
+    """Creates checkpoints for the model, labeled as 'best' and/or 'last'.
+
+    For both ``save_best`` and ``save_last``, a separate checkpoint is created.
+    If neither ``save_best`` or ``save_last`` is ``True``, no checkpoint is
+    created. If either is ``True``, only a single checkpoint is created.
+
+    Args:
+        model: The model to create a checkpoint for.
+        run_name: A name to prefix the checkpoint filename with.
+        ckpt_dir: The directory to store the checkpoint in.
+        save_best: Whether we should save this model as the 'best'.
+        save_last: Whether we should save this model as the 'last'.
+    """
+    file_prefix = f"{run_name}_"
+    file_suffix = '.pth'
+
+    if not ckpt_dir.exists():
+        ckpt_dir.mkdir(parents=True)
+
+    if save_best:
+        torch.save(
+            model.state_dict(),
+            ckpt_dir
+            / f'{file_prefix}best{file_suffix}'
+        )
+
+    if save_last:
+        torch.save(
+            model.state_dict(),
+            ckpt_dir / f'{file_prefix}last{file_suffix}'
+        )
+
+
+def get_data_transforms(
+    square_size: int,
+    norm_mean: List[float],
+    norm_std: List[float],
+    rrc_scale: Tuple[float],
+    rrc_ratio: Tuple[float],
+    use_three_crop: bool,
+) -> Tuple[Callable, Callable]:
+    """Creates the data transforms for recognition training and validation.
+
+    For training, this includes random resized cropping to a square size and
+    normalization. For validation, this includes resizing (preserving aspect
+    ratio), center or three-crop cropping to a square size and normalization.
+
+    Args:
+        square_size: Size (same for width and height) of the output image.
+        norm_mean: Per-channel mean to subtract from the image.
+        norm_std: Per-channel standard deviation to divide the image by.
+        rrc_scale: Lower and upper bound of the scale that is randomly selected
+            for random resized cropping during training.
+        rrc_ratio: Lower and upper bound of the aspect ratio that is randomly
+            selected for random resized cropping during training.
+        use_three_crop: If ``True``, use three-crop cropping during validation.
+
+    Returns:
+        A tuple ``(train_tfm, val_tfm)`` containing the training and validation
+        transforms.
+    """
+    tfm_train = Compose([
+        ToTensor(),
+        RandomResizedCrop(square_size,
+                          scale=rrc_scale,
+                          ratio=rrc_ratio,
+                          antialias=True),
+        Normalize(mean=norm_mean, std=norm_std)
+    ])
+
+    crop_tfms = [
+        ThreeCrop(),
+        Lambda(lambda crops: torch.stack([crop for crop in crops]))
+    ] if use_three_crop else [CenterCrop(square_size)]
+
+    tfm_val = Compose([
+        ToTensor(),
+        Resize(square_size, antialias=True),
+        *crop_tfms,
+        Normalize(mean=norm_mean, std=norm_std)
+    ])
+
+    return tfm_train, tfm_val
 
 
 def str_list_arg_type(arg):

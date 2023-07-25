@@ -1,6 +1,6 @@
 import torch
 
-from src.utils.inference import top_k, knn
+from inid.eval import top_k, knn
 
 
 def test_top_3():

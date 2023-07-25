@@ -1,6 +1,6 @@
 import torch
 
-from src.utils.inference import avg_ref_embs
+from inid.utils import avg_ref_embs
 
 
 def test_avg_ref_embs():

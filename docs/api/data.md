@@ -4,12 +4,10 @@
 .. autoclass:: inid.data.DataFrameDataset
    :members:
    :special-members:
-```
 
-```{eval-rst}
-.. autofunction:: inid.data.get_data_transforms
-```
+.. autofunction:: inid.data.train_val_datasets
 
-```{eval-rst}
-.. autofunction:: inid.data.get_train_val_datasets
+.. autofunction:: inid.data.split_gallery_query
+
+.. autofunction:: inid.data.k_fold_trainval_split
 ```

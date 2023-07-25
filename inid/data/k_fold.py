@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 
-def label_based_k_fold_trainval_split(
+def k_fold_trainval_split(
     df: pd.DataFrame,
     num_folds: int,
     val_fold: int,

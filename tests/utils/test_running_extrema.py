@@ -1,4 +1,4 @@
-from src.utils.training import RunningExtrema, MAX, MIN
+from inid.utils import RunningExtrema, MAX, MIN
 
 
 def test_is_new_max():

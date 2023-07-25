@@ -9,6 +9,8 @@ In contrast with a classification model, a recognition model should be able to c
 :maxdepth: 2
 
 guide/01-getting_started
+guide/02-customize
+guide/03-kfold_cross_val
 ```
 
 ```{toctree}
@@ -16,7 +18,7 @@ guide/01-getting_started
 :maxdepth: 4
 
 data <api/data>
-metrics <api/metrics>
+eval <api/eval>
 model <api/model>
 utils <api/utils>
 ```

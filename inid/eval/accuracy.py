@@ -1,7 +1,7 @@
 import torch
 from torch import Tensor
 
-from ..utils.inference import top_k
+from .knn import top_k
 
 
 def accuracy(

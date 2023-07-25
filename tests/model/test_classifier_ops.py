@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from src.utils.training import get_module_at_path, set_module_at_path,\
+from inid.model import get_module_at_path, set_module_at_path,\
     get_ultimate_classifier, split_backbone_classifier, update_classifier
 
 

@@ -1,6 +1,6 @@
 import torch
 
-from src.metrics import pr_metrics
+from inid.eval import pr_metrics
 
 
 def test_best_pr_metrics():

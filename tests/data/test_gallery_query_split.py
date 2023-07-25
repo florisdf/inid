@@ -1,9 +1,9 @@
 import pandas as pd
 
-from src.utils.data import label_based_k_fold_trainval_split
+from inid.data import split_gallery_query
 
 
-def test_no_label_overlap():
+def test_no_sample_overlap():
     df = pd.DataFrame([
         {'label': 'A', 'image': 'A_0001.jpg'},
         {'label': 'A', 'image': 'A_0002.jpg'},
@@ -15,18 +15,17 @@ def test_no_label_overlap():
         {'label': 'C', 'image': 'C_0002.jpg'},
         {'label': 'C', 'image': 'C_0003.jpg'},
     ])
-    df_train, df_val = label_based_k_fold_trainval_split(
+    df_gal, df_quer = split_gallery_query(
         df,
-        num_folds=3,
-        val_fold=0,
+        n_refs=1,
         seed=0,
         label_key='label'
     )
-    for label, _ in df_train.groupby('label'):
-        assert label not in df_val['label'].values
+    for im in df_quer['image']:
+        assert im not in df_gal['image'].values
 
 
-def test_val_folds():
+def test_complete():
     df = pd.DataFrame([
         {'label': 'A', 'image': 'A_0001.jpg'},
         {'label': 'A', 'image': 'A_0002.jpg'},
@@ -38,35 +37,20 @@ def test_val_folds():
         {'label': 'C', 'image': 'C_0002.jpg'},
         {'label': 'C', 'image': 'C_0003.jpg'},
     ])
-    df_train_0, df_val_0 = label_based_k_fold_trainval_split(
+    df_gal, df_quer = split_gallery_query(
         df,
-        num_folds=3,
-        val_fold=0,
-        seed=0,
-        label_key='label'
-    )
-    df_train_1, df_val_1 = label_based_k_fold_trainval_split(
-        df,
-        num_folds=3,
-        val_fold=1,
-        seed=0,
-        label_key='label'
-    )
-    df_train_2, df_val_2 = label_based_k_fold_trainval_split(
-        df,
-        num_folds=3,
-        val_fold=2,
+        n_refs=1,
         seed=0,
         label_key='label'
     )
 
-    df_cat = pd.concat(
-        [df_val_0, df_val_1, df_val_2]
-    ).sort_values(by='label').reset_index(drop=True)
+    df_cat = pd.concat([
+        df_gal, df_quer
+    ]).sort_values(by='image').reset_index(drop=True)
     assert (df_cat == df).all().all()
 
 
-def test_num_labels_in_subsets():
+def test_n_refs():
     df = pd.DataFrame([
         {'label': 'A', 'image': 'A_0001.jpg'},
         {'label': 'A', 'image': 'A_0002.jpg'},
@@ -78,15 +62,14 @@ def test_num_labels_in_subsets():
         {'label': 'C', 'image': 'C_0002.jpg'},
         {'label': 'C', 'image': 'C_0003.jpg'},
     ])
-    df_train, df_val = label_based_k_fold_trainval_split(
+    df_gal, df_quer = split_gallery_query(
         df,
-        num_folds=3,
-        val_fold=0,
+        n_refs=2,
         seed=0,
         label_key='label'
     )
-    assert len(df_val['label'].unique()) == 1
-    assert len(df_train['label'].unique()) == 2
+    for label, group in df_gal.groupby('label'):
+        assert len(group) == 2
 
 
 def test_label_key():
@@ -101,12 +84,11 @@ def test_label_key():
         {'name': 'C', 'image': 'C_0002.jpg'},
         {'name': 'C', 'image': 'C_0003.jpg'},
     ])
-    df_train, df_val = label_based_k_fold_trainval_split(
+    df_gal, df_quer = split_gallery_query(
         df,
-        num_folds=3,
-        val_fold=0,
+        n_refs=2,
         seed=0,
         label_key='name'
     )
-    assert len(df_val['name'].unique()) == 1
-    assert len(df_train['name'].unique()) == 2
+    for label, group in df_gal.groupby('name'):
+        assert len(group) == 2

@@ -1,6 +1,6 @@
 import torch
 
-from src.utils.inference import get_score_matrix
+from inid.eval import get_score_matrix
 
 
 def test_get_score_matrix():
