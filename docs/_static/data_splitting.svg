@@ -27,11 +27,11 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="px"
      showgrid="false"
-     inkscape:zoom="0.62631896"
-     inkscape:cx="553.2325"
-     inkscape:cy="466.21613"
-     inkscape:window-width="1680"
-     inkscape:window-height="1050"
+     inkscape:zoom="0.79530913"
+     inkscape:cx="550.10056"
+     inkscape:cy="447.62468"
+     inkscape:window-width="1920"
+     inkscape:window-height="1080"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="0"
@@ -770,58 +770,58 @@
        dx="0 0 0 0 0 0 0 0 0 -3.1483719e-08"><tspan
          x="342.89484"
          y="574.93396"
-         id="tspan36092"><tspan
+         id="tspan37376"><tspan
            style="font-weight:500;-inkscape-font-specification:'CMU Serif Medium'"
-           id="tspan36086">Choose </tspan><tspan
+           id="tspan37370">Choose </tspan><tspan
            style="font-weight:normal;font-family:'MesloLGS Nerd Font Mono';-inkscape-font-specification:'MesloLGS Nerd Font Mono'"
-           id="tspan36088">num_refs</tspan><tspan
+           id="tspan37372">num_refs</tspan><tspan
            style="font-weight:500;-inkscape-font-specification:'CMU Serif Medium'"
-           id="tspan36090"></tspan><tspan
+           id="tspan37374"></tspan><tspan
            y="574.93396"
-           id="tspan36094"> </tspan></tspan><tspan
+           id="tspan37378"> </tspan></tspan><tspan
          x="342.89484"
          y="605.54413"
-         id="tspan36098"><tspan
+         id="tspan37382"><tspan
            style="font-weight:500;-inkscape-font-specification:'CMU Serif Medium'"
-           id="tspan36096">samples per label</tspan></tspan></text>
+           id="tspan37380">samples per label</tspan></tspan></text>
     <text
        xml:space="preserve"
-       style="font-weight:bold;font-size:24px;font-family:'CMU Serif';-inkscape-font-specification:'CMU Serif Bold';text-align:end;text-anchor:end;white-space:pre;inline-size:293.963;display:inline;fill:#000000;fill-opacity:0.945882;stroke:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;stop-color:#000000"
+       style="font-weight:bold;font-size:24px;font-family:'CMU Serif';-inkscape-font-specification:'CMU Serif Bold';text-align:end;text-anchor:end;white-space:pre;inline-size:338.669;display:inline;fill:#000000;fill-opacity:0.945882;stroke:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;stop-color:#000000"
        x="236.25235"
        y="477.76447"
        id="text4395-1-8"
        transform="translate(116.69304,-41.014082)"><tspan
          x="236.25235"
          y="477.76447"
-         id="tspan36102"><tspan
+         id="tspan37386"><tspan
    style="font-weight:500;-inkscape-font-specification:'CMU Serif Medium'"
-   id="tspan36100">Use fold at index</tspan><tspan
+   id="tspan37384">Use samples in fold at index</tspan><tspan
    y="477.76447"
-   id="tspan36104"> </tspan></tspan><tspan
+   id="tspan37388"> </tspan></tspan><tspan
          x="236.25235"
          y="508.37463"
-         id="tspan36110"><tspan
+         id="tspan37394"><tspan
            style="font-weight:normal;font-family:'MesloLGS Nerd Font Mono';-inkscape-font-specification:'MesloLGS Nerd Font Mono'"
-           id="tspan36106">val_fold </tspan><tspan
+           id="tspan37390">val_fold </tspan><tspan
            style="font-weight:500;-inkscape-font-specification:'CMU Serif Medium'"
-           id="tspan36108">for validation</tspan></tspan></text>
+           id="tspan37392">for validation</tspan></tspan></text>
     <text
        xml:space="preserve"
-       style="font-weight:bold;font-size:24px;font-family:'CMU Serif';-inkscape-font-specification:'CMU Serif Bold';text-align:start;text-anchor:start;white-space:pre;inline-size:231.475;display:inline;fill:#000000;fill-opacity:0.945882;stroke:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;stop-color:#000000"
+       style="font-weight:bold;font-size:24px;font-family:'CMU Serif';-inkscape-font-specification:'CMU Serif Bold';text-align:start;text-anchor:start;white-space:pre;inline-size:260.214;display:inline;fill:#000000;fill-opacity:0.945882;stroke:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;stop-color:#000000"
        x="-11.763275"
        y="477.76447"
        id="text4395-1-8-83"
        transform="translate(760.05569,-41.072279)"><tspan
          x="-11.763275"
          y="477.76447"
-         id="tspan36114"><tspan
+         id="tspan37398"><tspan
            style="font-weight:500;-inkscape-font-specification:'CMU Serif Medium'"
-           id="tspan36112">Other folds are used </tspan></tspan><tspan
+           id="tspan37396">Samples in other folds </tspan></tspan><tspan
          x="-11.763275"
          y="507.76447"
-         id="tspan36118"><tspan
+         id="tspan37402"><tspan
            style="font-weight:500;-inkscape-font-specification:'CMU Serif Medium'"
-           id="tspan36116">for training</tspan></tspan></text>
+           id="tspan37400">are used for training</tspan></tspan></text>
     <text
        xml:space="preserve"
        style="font-weight:bold;font-size:24px;font-family:'CMU Serif';-inkscape-font-specification:'CMU Serif Bold';text-align:center;text-anchor:middle;opacity:1;fill:#000000;fill-opacity:0.945882;stroke:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:12, 12;stroke-dashoffset:0;stroke-opacity:1;stop-color:#000000"
@@ -829,20 +829,20 @@
        y="278.97818"
        id="text13833"><tspan
          sodipodi:role="line"
-         id="tspan13831"
          x="747.91699"
          y="278.97818"
+         id="tspan13835"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:24px;font-family:'MesloLGS Nerd Font Mono';-inkscape-font-specification:'MesloLGS Nerd Font Mono';text-align:start;text-anchor:start">num_folds = 3</tspan><tspan
          sodipodi:role="line"
          x="747.91699"
          y="309.58835"
-         id="tspan13835"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:24px;font-family:'MesloLGS Nerd Font Mono';-inkscape-font-specification:'MesloLGS Nerd Font Mono';text-align:start;text-anchor:start">num_refs = 1</tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:24px;font-family:'MesloLGS Nerd Font Mono';-inkscape-font-specification:'MesloLGS Nerd Font Mono';text-align:start;text-anchor:start"
+         id="tspan23430">val_fold = 0</tspan><tspan
          sodipodi:role="line"
          x="747.91699"
          y="340.19852"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:24px;font-family:'MesloLGS Nerd Font Mono';-inkscape-font-specification:'MesloLGS Nerd Font Mono';text-align:start;text-anchor:start"
-         id="tspan23430">val_fold = 0</tspan></text>
+         id="tspan36124">num_refs = 1</tspan></text>
     <g
        id="g24668">
       <g
@@ -1340,7 +1340,7 @@
              transform="translate(427.63514,250.55914)"><tspan
                x="190.0939"
                y="574.93396"
-               id="tspan36120">Training set</tspan></text>
+               id="tspan37404">Training set</tspan></text>
           <g
              id="g15555"
              transform="translate(-4.6035523e-6,-54.686579)">

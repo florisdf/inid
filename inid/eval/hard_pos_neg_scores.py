@@ -7,8 +7,8 @@ import math
 
 def hard_pos_neg_scores(
     scores: Tensor,
-    query_labels: Tensor,
     gallery_labels: Tensor,
+    query_labels: Tensor,
 ) -> Dict[str, Tensor]:
     """
     Computes the similarity scores between each query and the hardest negative

@@ -53,7 +53,7 @@ def test_best_pr_metrics():
         ]),
     }
 
-    ret = pr_metrics(scores, query_labels, gallery_labels)
+    ret = pr_metrics(scores, gallery_labels, query_labels)
     _assert_equal(exp, ret)
 
 
@@ -107,7 +107,7 @@ def test_bad_pr_metrics():
         ]),
     }
 
-    ret = pr_metrics(scores, query_labels, gallery_labels)
+    ret = pr_metrics(scores, gallery_labels, query_labels)
     _assert_equal(exp, ret)
 
 

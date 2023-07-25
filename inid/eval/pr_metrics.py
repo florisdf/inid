@@ -6,17 +6,17 @@ from torch import Tensor
 
 def pr_metrics(
     scores: Tensor,
-    query_labels: Tensor,
-    gallery_labels: Tensor
+    gallery_labels: Tensor,
+    query_labels: Tensor
 ) -> Dict[str, Union[List[Tensor], Tensor]]:
     """Computes the precision-recall curves and related metrics.
 
     Args:
         scores: The scores for each query (rows) and each gallery item
             (columns).
-        query_labels: The true label of each query (rows of ``scores``).
         gallery_labels: The labels of the items in the gallery (columns of
             ``scores``).
+        query_labels: The true label of each query (rows of ``scores``).
 
     Returns:
         A dictionary containing the metrics. The dict contains the following

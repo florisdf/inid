@@ -6,8 +6,8 @@ from .knn import top_k
 
 def accuracy(
     scores: Tensor,
-    query_labels: Tensor,
-    gallery_labels: Tensor
+    gallery_labels: Tensor,
+    query_labels: Tensor
 ) -> Tensor:
     """Computes the top-1 accuracy.
 
@@ -29,8 +29,8 @@ def accuracy(
 
 def top_k_accuracy(
     scores: Tensor,
-    query_labels: Tensor,
     gallery_labels: Tensor,
+    query_labels: Tensor,
     k: int
 ):
     """Computes the top-k accuracy.

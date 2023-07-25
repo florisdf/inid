@@ -51,8 +51,8 @@ def score_matrix(
             It should take two arguments: the model and the image batch.
 
     Returns:
-        The score matrix, the labels of the queries (rows) and the labels of
-        the gallery items (columns).
+        The score matrix, the labels of the gallery items (columns) and the
+        labels of the queries (rows).
     """
     assert not model.training
     model = model.to(device)
@@ -60,15 +60,9 @@ def score_matrix(
     gal_embeddings = []
     gal_labels = []
     for imgs, labels in tqdm(dl_gal, leave=False):
-        imgs = imgs.to(device)
-        labels = labels.to(device)
-        if get_embeddings_fn is None:
-            out = model(imgs)
-        else:
-            out = get_embeddings_fn(model, imgs)
-        assert len(labels) == len(out)
-        gal_embeddings.append(out)
-        gal_labels.append(labels)
+        _compute_and_append_embeddings(model, imgs, labels, device,
+                                       gal_embeddings, gal_labels,
+                                       get_embeddings_fn)
     gal_embeddings = torch.cat(gal_embeddings)
     gal_labels = torch.cat(gal_labels)
 
@@ -78,18 +72,35 @@ def score_matrix(
     scores = []
     quer_labels = []
     for imgs, labels in tqdm(dl_quer, leave=False):
-        imgs = imgs.to(device)
-        labels = labels.to(device)
-        if get_embeddings_fn is None:
-            q_embs = model(imgs)
-        else:
-            q_embs = get_embeddings_fn(model, imgs)
-        scores.append(torch.matmul(q_embs, gal_embeddings.T))
-        quer_labels.append(labels)
+        q_embs = []
+        _compute_and_append_embeddings(model, imgs, labels, device,
+                                       q_embs, quer_labels,
+                                       get_embeddings_fn)
+        scores.append(torch.matmul(q_embs[0], gal_embeddings.T))
     scores = torch.cat(scores)
     quer_labels = torch.cat(quer_labels)
 
-    return scores, quer_labels, gal_labels
+    return scores, gal_labels, quer_labels
+
+
+def _compute_and_append_embeddings(
+    model,
+    imgs,
+    labels,
+    device,
+    embedding_list,
+    label_list,
+    get_embeddings_fn,
+):
+    imgs = imgs.to(device)
+    labels = labels.to(device)
+    if get_embeddings_fn is None:
+        out = model(imgs)
+    else:
+        out = get_embeddings_fn(model, imgs)
+        assert len(labels) == len(out)
+        embedding_list.append(out)
+        label_list.append(labels)
 
 
 def sort_scores(

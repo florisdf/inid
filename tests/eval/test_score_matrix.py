@@ -32,7 +32,7 @@ def test_get_score_matrix():
     model = torch.nn.Identity()
     model.eval()
 
-    ret_scores, ret_q_labels, ret_g_labels = get_score_matrix(
+    ret_scores, ret_g_labels, ret_q_labels = get_score_matrix(
         model,
         device='cpu',
         dl_gal=dl_gal,
