@@ -83,10 +83,9 @@ def get_embeddings_three_crops(
     Args:
         model: The model to use for computing the embedding of a batch of
             images.
-        batch: A batch of shape ``B x T x C x H x W`` and ``label_batch`` is a
-            tensor of shape ``B``, with ``B`` the batch size, ``T = 3`` for the
-            three crops, ``C`` the number of channels, ``H = W`` the height and
-            width of the images.
+        batch: A batch of shape ``B x T x C x H x W``, with ``B`` the batch
+            size, ``T = 3`` for the three crops, ``C`` the number of channels,
+            ``H = W`` the height and width of the images.
 
     Returns:
         The embeddings, averaged per three crops.

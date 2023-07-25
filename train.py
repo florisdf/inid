@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 from pathlib import Path
 import sys
-from typing import Callable, Optional, List, Tuple
+from typing import Any, Dict, Callable, Optional, List, Tuple
 
 import torch
 from torch import nn
@@ -13,12 +13,12 @@ from torchvision import models
 from tqdm import tqdm
 import wandb
 
-from src.model import Recognizer
-from src.data import get_train_val_datasets, get_data_transforms
-from src.metrics import accuracy, pr_metrics, hard_pos_neg_scores
-from src.utils.inference import get_score_matrix, avg_ref_embs,\
+from inid.model import Recognizer
+from inid.data import get_train_val_datasets, get_data_transforms
+from inid.metrics import accuracy, pr_metrics, hard_pos_neg_scores
+from inid.utils.inference import get_score_matrix, avg_ref_embs,\
     collate_with_three_crops, get_embeddings_three_crops
-from src.utils.training import create_checkpoints, log, RunningExtrema,\
+from inid.utils.training import create_checkpoints, RunningExtrema,\
     MAX, MIN
 
 
@@ -312,6 +312,45 @@ def validation_epoch(
         section='Val')
     log(running_extrema_worst.extrema_dict, epoch_idx=epoch_idx,
         section='Val')
+
+
+def log(
+    log_dict: Dict[str, Any],
+    epoch_idx: int,
+    batch_idx: Optional[int] = None,
+    section: Optional[int] = None
+):
+    """Logs the given dict to WandB.
+
+    Args:
+        log_dict: The dictionary to log.
+        epoch_idx: The epoch number.
+        batch_idx: The batch number.
+        section: The section to put the logs in.
+    """
+    def get_key(k):
+        if section is None:
+            return k
+        else:
+            return f'{section}/{k}'
+
+    def get_value(v):
+        if isinstance(v, torch.Tensor):
+            return v.detach().cpu()
+        elif isinstance(v, float) or isinstance(v, int):
+            return v
+        else:
+            return None
+
+    for k, v in log_dict.items():
+        k = get_key(k)
+        v = get_value(v)
+        if v is None:
+            continue
+        wandb_dict = {k: v, "epoch": epoch_idx}
+        if batch_idx is not None:
+            wandb_dict['batch_idx'] = batch_idx
+        wandb.log(wandb_dict)
 
 
 def str_list_arg_type(arg):

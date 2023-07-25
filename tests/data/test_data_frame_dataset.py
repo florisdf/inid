@@ -25,6 +25,8 @@ def test_data_frame_dataset(tmp_path):
     ds = DataFrameDataset(df, label_key='my_label', image_key='my_image',
                           label_to_int=label_to_int, transform=None)
 
+    assert ds.unique_labels == {'A', 'B'}
+
     assert len(ds) == len(df)
 
     for i in range(len(df)):

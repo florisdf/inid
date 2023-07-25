@@ -12,9 +12,9 @@ def get_train_val_datasets(
     image_key: str,
     num_folds: int,
     val_fold: int,
-    k_fold_seed: int,
-    n_refs: int,
-    rand_ref_seed: int,
+    fold_seed: int,
+    num_refs: int,
+    ref_seed: int,
     tfm_train: Callable = None,
     tfm_val: Callable = None,
 ) -> Tuple[DataFrameDataset, DataFrameDataset, DataFrameDataset]:
@@ -31,7 +31,7 @@ def get_train_val_datasets(
     For the train-validation split, we use a folds-based approach that allows
     for easy K-fold cross-validation. How the dataset is split is determined by
     ``num_folds`` (the number of folds), ``val_fold`` (which fold to use for
-    validation) and ``k_fold_seed`` (the seed used for the random generator
+    validation) and ``fold_seed`` (the seed used for the random generator
     that shuffles the labels before creating the folds). For example, when
     setting ``num_folds = 5``, each value for ``val_fold`` from 0 to 4 gives
     rise to another validation set and another training set. Training and
@@ -44,8 +44,8 @@ def get_train_val_datasets(
     is again to reflect a real-world scenario where a gallery of labeled
     references is used to identify a given query.
 
-    The query-gallery split is determined by ``n_refs`` (the number of
-    references per label) and ``rand_ref_seed`` (the seed for the random
+    The query-gallery split is determined by ``num_refs`` (the number of
+    references per label) and ``ref_seed`` (the seed for the random
     generator that shuffles the data before splitting).
 
     Args:
@@ -60,9 +60,9 @@ def get_train_val_datasets(
             sample-based.
         val_fold: The index of the fold to use for validation. The others will
             be used for training.
-        k_fold_seed: The random seed to use for k-fold splitting.
-        n_refs: The number of references per class in the gallery.
-        rand_ref_seed: The state of the random generator used for randomly
+        fold_seed: The random seed to use for k-fold splitting.
+        num_refs: The number of references per class in the gallery.
+        ref_seed: The state of the random generator used for randomly
             choosing gallery reference images.
         tfm_train: The transform to apply to the training images.
         tfm_val: The transform to apply to the validation images.
@@ -74,11 +74,11 @@ def get_train_val_datasets(
 
     df_train, df_val = label_based_k_fold_trainval_split(
         df=df, num_folds=num_folds, val_fold=val_fold,
-        seed=k_fold_seed,
+        seed=fold_seed,
         label_key=label_key
     )
     df_gal, df_quer = split_gallery_query(
-        df_val, n_refs, rand_ref_seed,
+        df_val, num_refs, ref_seed,
         label_key=label_key
     )
 

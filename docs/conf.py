@@ -11,7 +11,7 @@ path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'Deep Visual Recognition Toolbox'
+project = 'InID'
 copyright = '2023, Floris De Feyter'
 author = 'Floris De Feyter'
 
@@ -22,8 +22,10 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
-    'sphinx.ext.napoleon'
+    'sphinx.ext.napoleon',
+    'myst_parser'
 ]
+myst_enable_extensions = ["dollarmath", "amsmath"]
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
@@ -34,3 +36,9 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
+
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.txt': 'markdown',
+    '.md': 'markdown',
+}

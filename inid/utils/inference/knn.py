@@ -10,7 +10,7 @@ def knn(
     gallery_labels: torch.Tensor,
     k: int
 ) -> torch.Tensor:
-    """Classifies the queries according with k-Nearest Neighbours.
+    """Classifies the queries with k-Nearest Neighbours.
 
     For each query, we do a majority voting among the labels of the k gallery
     items with the highest similarity score.

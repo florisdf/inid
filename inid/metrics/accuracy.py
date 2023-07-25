@@ -49,10 +49,10 @@ def top_k_accuracy(
         The top-k accuracy.
     """
     _, top_k_labels = top_k(scores, gallery_labels, k)
-    return top_all_accuracy(query_labels, top_k_labels)
+    return _top_all_accuracy(query_labels, top_k_labels)
 
 
-def top_all_accuracy(
+def _top_all_accuracy(
     query_labels: Tensor,
     top_all_labels: Tensor
 ):
