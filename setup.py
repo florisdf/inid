@@ -30,7 +30,7 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
     ],
-    description="IniD is a library to kickstart your next PyTorch-based "
+    description="Recognite is a library to kickstart your next PyTorch-based "
     "recognition project.",
     install_requires=requirements,
     license="MIT license",
