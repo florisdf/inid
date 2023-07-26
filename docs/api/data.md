@@ -1,4 +1,4 @@
-# data package
+# recognite.data package
 
 ```{eval-rst}
 .. autoclass:: recognite.data.DataFrameDataset

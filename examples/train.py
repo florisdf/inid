@@ -8,18 +8,19 @@ from torch import nn
 from torch.optim import Optimizer, SGD
 from torch.optim.lr_scheduler import LRScheduler, LinearLR
 from torch.utils.data import DataLoader
-from torchvision import models
 from torchvision.models._api import Weights
 from torchvision.transforms import CenterCrop, Compose, ToTensor, Lambda,\
     Normalize, RandomResizedCrop, Resize
 from tqdm import tqdm
 import wandb
 
-from inid.model import Recognizer
-from inid.data import get_train_val_datasets
-from inid.eval import accuracy, pr_metrics, hard_pos_neg_scores, score_matrix
-from inid.utils import RunningExtrema, MAX, MIN, collate_with_three_crops,\
-    get_embeddings_three_crops, avg_ref_embs, ThreeCrop
+from recognite.model import Recognizer, SUPPORTED_MODELS
+from recognite.data import get_train_val_datasets
+from recognite.eval import accuracy, pr_metrics, hard_pos_neg_scores,\
+    score_matrix
+from recognite.utils import RunningExtrema, MAX, MIN,\
+    collate_with_three_crops, get_embeddings_three_crops, avg_ref_embs,\
+    ThreeCrop
 
 
 def run_training(
@@ -40,7 +41,7 @@ def run_training(
     run_name: str,
 
     gal_num_refs: int,
-    gal_rand_ref_seed: int,
+    gal_ref_seed: int,
     val_fold: int,
     num_folds: int,
     k_fold_seed: int,
@@ -79,9 +80,9 @@ def run_training(
         image_key=image_key,
         num_folds=num_folds,
         val_fold=val_fold,
-        k_fold_seed=k_fold_seed,
-        n_refs=gal_num_refs,
-        rand_ref_seed=gal_rand_ref_seed,
+        fold_seed=k_fold_seed,
+        num_refs=gal_num_refs,
+        ref_seed=gal_ref_seed,
         tfm_train=tfm_train,
         tfm_val=tfm_val,
     )
@@ -462,10 +463,8 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '--model_name',
-        help='The name of the model to use for the recognizer. Should be one '
-        'of the models provided by torchvision (see '
-        'https://pytorch.org/vision/stable/models.html).',
-        type=lambda arg: arg if hasattr(models, arg) else getattr(models, arg),
+        help='The name of the model to use for the recognizer. '
+        f'Supported models: {", ".join(SUPPORTED_MODELS)}.',
         default='resnet50',
     )
     parser.add_argument(
@@ -538,7 +537,7 @@ if __name__ == '__main__':
         type=int
     )
     parser.add_argument(
-        '--gal_rand_ref_seed', default=15,
+        '--gal_ref_seed', default=15,
         help='The seed for the random generator that chooses the validation '
         'samples to use as reference in the gallery.',
         type=int
@@ -546,7 +545,7 @@ if __name__ == '__main__':
 
     # Data CSV file
     parser.add_argument(
-        '--data_train_csv', default='data_train.csv',
+        '--data_csv', default='data.csv',
         help='The CSV file containing the training dataset labels and images.'
     )
     parser.add_argument(
@@ -558,31 +557,6 @@ if __name__ == '__main__':
         '--data_image_key', default='image',
         help='The name of the column containing the image path of each '
         'dataset sample.'
-    )
-
-    # Dataset
-    parser.add_argument(
-        '--data_path', default='/apollo/datasets/NPHM',
-        help='Path to the NPHM dataset.',
-    )
-    parser.add_argument(
-        '--scan_type', default='registration',
-        help='Scan type to use for the input data.',
-    )
-    parser.add_argument(
-        '--keep_bad_scans', action='store_true',
-        help='If set, leave bad scans in the dataset.',
-    )
-    parser.add_argument(
-        '--n_verts_subsample', default=None,
-        help='Number of vertices to subsample.',
-        type=int_or_none,
-    )
-    parser.add_argument(
-        '--subsample_seed', default=15,
-        help='Random seed to use for shuffling the subsample indices during '
-        'training.',
-        type=int
     )
 
     # Dataloader args
@@ -630,8 +604,11 @@ if __name__ == '__main__':
     )
 
     # Device arg
-    parser.add_argument('--device', default='cuda',
-                        help='The device (cuda/cpu) to use.')
+    parser.add_argument(
+        '--device',
+        default='cuda' if torch.cuda.is_available() else 'cpu',
+        help='The device (cuda/cpu) to use.'
+    )
 
     parser.add_argument(
         '--square_size',
@@ -695,11 +672,11 @@ if __name__ == '__main__':
         use_three_crop=args.use_three_crop,
 
         gal_num_refs=args.gal_num_refs,
-        gal_rand_ref_seed=args.gal_rand_ref_seed,
+        gal_ref_seed=args.gal_ref_seed,
         val_fold=args.k_fold_val_fold,
         num_folds=args.k_fold_num_folds,
-        k_fold_seed=args.k_fold_seed,
-        train_csv=args.data_train_csv,
+        fold_seed=args.k_fold_seed,
+        train_csv=args.data_csv,
         label_key=args.data_label_key,
         image_key=args.data_image_key,
 

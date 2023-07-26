@@ -1,4 +1,4 @@
-# model package
+# recognite.model package
 
 ```{eval-rst}
 .. autoclass:: recognite.model.Recognizer

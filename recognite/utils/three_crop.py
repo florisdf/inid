@@ -36,7 +36,7 @@ def three_crop(
     center = center_crop(img, [size, size])
     end = crop(img, image_height - size, image_width - size, size, size)
 
-    return start, center, end
+    return torch.stack([start, center, end])
 
 
 def collate_with_three_crops(
