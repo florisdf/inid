@@ -1,6 +1,13 @@
-# Recognition scaffolding
+# iniD
 
-This repo contains code to jumpstart your next PyTorch-based recognition project!
 
-As a toy example, we train a Pokémon recognizer. This model can be used to
-recognize Pokémon that it has not seen during training.
+![](https://img.shields.io/pypi/v/inid.svg)
+![](https://img.shields.io/travis/florisdf/inid.svg)
+![](https://readthedocs.org/projects/inid/badge/?version=latest)
+
+
+iniD is a library to kickstart your next PyTorch-based recognition project.
+
+
+* Free software: MIT license
+* Documentation: https://inid.readthedocs.io.

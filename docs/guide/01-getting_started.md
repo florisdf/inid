@@ -187,4 +187,4 @@ For more information about these metrics, see [the guide on metrics](./02-metric
 
 ## Some extra utilities
 
-InID provides some extra utilities that might come in useful, such as a data transformation that might significantly improve your model performance without any extra training. We discuss these [over here](./04-utils).
+InID provides some extra utilities that might come in useful, such as a data transformation that could significantly improve your model performance without any extra training. We discuss these [over here](./04-utils).
