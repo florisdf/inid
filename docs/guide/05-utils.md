@@ -98,7 +98,7 @@ scores, gal_labels, quer_labels = score_matrix(
 ## Running Extrema
 
 ```{eval-rst}
-In a logging tool like [Weights and Biases](https://wandb.ai), you have a table view where you can compare different runs. The values shown for the logged metrics, however, are typically the values that where logged most recently. It might be interesting to compare the *best* attained values during training, however. For this, Recognite contains :class:`recognite.utils.RunningExtrema`.
+In a logging tool like `Weights and Biases <https://wandb.ai>`_, you have a table view where you can compare different runs. The values shown for the logged metrics, however, are typically the values that where logged most recently. It might be interesting to compare the *best* attained values during training, however. For this, Recognite contains :class:`recognite.utils.RunningExtrema`.
 
 With the following code, for example, we create an object that keeps track of the maximally attained values of the metrics that will be passed in.
 ```
