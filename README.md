@@ -1,9 +1,8 @@
 # Recognite
 
 
-![](https://img.shields.io/pypi/v/inid.svg)
-![](https://img.shields.io/travis/florisdf/inid.svg)
-![](https://readthedocs.org/projects/inid/badge/?version=latest)
+![](https://img.shields.io/pypi/v/recognite.svg)
+![](https://readthedocs.org/projects/recognite/badge/?version=latest)
 
 
 Recognite is a library to kickstart your next PyTorch-based recognition project.
