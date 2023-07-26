@@ -83,9 +83,6 @@ The model does not expect the extra dimension of the three-crops. We should resh
 ```
 
 ```{code-block} python
----
-emphasize-lines:
----
 from recognite.utils import get_embeddings_three_crops
 from recognite.eval import score_matrix
 
@@ -112,7 +109,7 @@ from recognite.utils import RunninExtrema, MAX
 running_max = RunningExtrema(MAX)
 ```
 
-For example, the following code
+For example, after executing the following code
 
 ```python
 running_max.update({
@@ -125,10 +122,9 @@ running_max.update({
     'Accuracy': 0.1,
 })
 
-running_max.extrema_dict
 ```
 
-will print
+`running_max.extrema_dict` will give the dictionary:
 
 ```python
 {
