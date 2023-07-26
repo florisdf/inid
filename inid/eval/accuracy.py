@@ -24,7 +24,7 @@ def accuracy(
     Returns:
         The top-1 accuracy.
     """
-    return top_k_accuracy(scores, query_labels, gallery_labels, k=1)
+    return top_k_accuracy(scores, gallery_labels, query_labels, k=1)
 
 
 def top_k_accuracy(

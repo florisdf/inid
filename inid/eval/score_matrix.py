@@ -94,13 +94,15 @@ def _compute_and_append_embeddings(
 ):
     imgs = imgs.to(device)
     labels = labels.to(device)
+
     if get_embeddings_fn is None:
         out = model(imgs)
     else:
         out = get_embeddings_fn(model, imgs)
         assert len(labels) == len(out)
-        embedding_list.append(out)
-        label_list.append(labels)
+
+    embedding_list.append(out)
+    label_list.append(labels)
 
 
 def sort_scores(

@@ -2,7 +2,7 @@ import pandas as pd
 from PIL import Image
 import pytest
 
-from inid.train_val_datasets import train_val_datasets
+from inid.data import train_val_datasets
 
 
 def test_no_overlaps(dummy_dataset):
@@ -28,7 +28,7 @@ def test_complete(dummy_dataset):
 def test_n_refs(dummy_dataset):
     df_all, ds_kwargs = dummy_dataset
 
-    ds_kwargs['n_refs'] = 2
+    ds_kwargs['num_refs'] = 2
     ds_kwargs['num_folds'] = 3
     ds_train, ds_val_gal, ds_val_quer = train_val_datasets(**ds_kwargs)
 
@@ -105,9 +105,9 @@ def dummy_dataset(tmp_path):
         image_key='my_image',
         num_folds=3,
         val_fold=0,
-        k_fold_seed=15,
-        n_refs=1,
-        rand_ref_seed=15,
+        fold_seed=15,
+        num_refs=1,
+        ref_seed=15,
         tfm_train=None,
         tfm_val=None,
     )
