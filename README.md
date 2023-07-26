@@ -1,4 +1,4 @@
-# iniD
+# Recognite
 
 
 ![](https://img.shields.io/pypi/v/inid.svg)
@@ -6,7 +6,7 @@
 ![](https://readthedocs.org/projects/inid/badge/?version=latest)
 
 
-iniD is a library to kickstart your next PyTorch-based recognition project.
+Recognite is a library to kickstart your next PyTorch-based recognition project.
 
 
 * Free software: MIT license
