@@ -1,1 +1,1 @@
-"""Unit test package for inid."""
+"""Unit test package for recognite."""

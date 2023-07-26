@@ -1,6 +1,6 @@
 import torch
 
-from inid.eval import hard_pos_neg_scores
+from recognite.eval import hard_pos_neg_scores
 
 
 def test_hard_pos_neg_scores():

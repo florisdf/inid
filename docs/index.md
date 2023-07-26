@@ -1,6 +1,6 @@
-# InID
+# Recognite
 
-**InID** (**In**itialize **id**entification) is a library to kickstart your next PyTorch-based recognition project.
+**Recognite** is a library to kickstart your next PyTorch-based recognition project.
 
 In contrast with a classification model, a recognition model should be able to cope with classes that were not present in the training set. Therefore, instead of outputting a class, a recognizer outputs an *embedding*. By comparing the embedding of a given *query* image with the embeddings of labeled references (the *gallery*), we can predict a label for the query.
 

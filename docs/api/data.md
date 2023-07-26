@@ -1,13 +1,13 @@
 # data package
 
 ```{eval-rst}
-.. autoclass:: inid.data.DataFrameDataset
+.. autoclass:: recognite.data.DataFrameDataset
    :members:
    :special-members:
 
-.. autofunction:: inid.data.train_val_datasets
+.. autofunction:: recognite.data.train_val_datasets
 
-.. autofunction:: inid.data.split_gallery_query
+.. autofunction:: recognite.data.split_gallery_query
 
-.. autofunction:: inid.data.k_fold_trainval_split
+.. autofunction:: recognite.data.k_fold_trainval_split
 ```

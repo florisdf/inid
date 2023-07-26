@@ -1,6 +1,6 @@
 import pandas as pd
 
-from inid.data import k_fold_trainval_split
+from recognite.data import k_fold_trainval_split
 
 
 def test_no_label_overlap():

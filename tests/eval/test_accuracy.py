@@ -1,5 +1,5 @@
 import torch
-from inid.eval import accuracy, top_k_accuracy
+from recognite.eval import accuracy, top_k_accuracy
 
 
 def test_perfect_accuracy():

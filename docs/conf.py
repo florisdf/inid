@@ -11,7 +11,7 @@ path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'InID'
+project = 'Recognite'
 copyright = '2023, Floris De Feyter'
 author = 'Floris De Feyter'
 

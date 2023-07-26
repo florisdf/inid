@@ -2,7 +2,7 @@ import pandas as pd
 from PIL import Image
 from torchvision.transforms.functional import to_tensor
 
-from inid.data import DataFrameDataset
+from recognite.data import DataFrameDataset
 
 
 def test_data_frame_dataset(tmp_path):

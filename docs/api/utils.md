@@ -3,13 +3,13 @@
 ## Average reference embeddings
 
 ```{eval-rst}
-.. autofunction:: inid.utils.avg_ref_embs
+.. autofunction:: recognite.utils.avg_ref_embs
 ```
 
 ## Three-cropping
 
 ```{eval-rst}
-.. automodule:: inid.utils.three_crop
+.. automodule:: recognite.utils.three_crop
    :members:
    :special-members:
 ```
@@ -17,6 +17,6 @@
 ## Running Extrema
 
 ```{eval-rst}
-.. autoclass:: inid.utils.RunningExtrema
+.. autoclass:: recognite.utils.RunningExtrema
    :members:
 ```

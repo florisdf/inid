@@ -1,6 +1,6 @@
 import torch
 
-from inid.eval import top_k, knn
+from recognite.eval import top_k, knn
 
 
 def test_top_3():

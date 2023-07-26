@@ -1,6 +1,6 @@
 import pandas as pd
 
-from inid.data import split_gallery_query
+from recognite.data import split_gallery_query
 
 
 def test_no_sample_overlap():

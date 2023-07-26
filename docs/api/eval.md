@@ -1,19 +1,19 @@
 # eval package
 
 ```{eval-rst}
-.. autofunction:: inid.eval.accuracy
+.. autofunction:: recognite.eval.accuracy
 
-.. autofunction:: inid.eval.hard_pos_neg_scores
+.. autofunction:: recognite.eval.hard_pos_neg_scores
 
-.. autofunction:: inid.eval.knn
+.. autofunction:: recognite.eval.knn
 
-.. autofunction:: inid.eval.pr_metrics
+.. autofunction:: recognite.eval.pr_metrics
 
-.. autofunction:: inid.eval.score_matrix
+.. autofunction:: recognite.eval.score_matrix
 
-.. autofunction:: inid.eval.sort_scores
+.. autofunction:: recognite.eval.sort_scores
 
-.. autofunction:: inid.eval.top_k
+.. autofunction:: recognite.eval.top_k
 
-.. autofunction:: inid.eval.top_k_accuracy
+.. autofunction:: recognite.eval.top_k_accuracy
 ```

@@ -8,7 +8,7 @@
 
 ## Creating a training and validation dataset
 
-For the dataset, `inid` expects a simple CSV file with at least two columns: one column to indicate the image path and another column to give the corresponding label. For example:
+For the dataset, `recognite` expects a simple CSV file with at least two columns: one column to indicate the image path and another column to give the corresponding label. For example:
 
 ```text
 image,label
@@ -27,7 +27,7 @@ It is entirely up to you how you structure your data and how you name the image 
 Let's say you have written your CSV file to `my_data.csv`. Then you can create training and validation datasets as follows:
 
 ```python
-from inid.data import train_val_datasets
+from recognite.data import train_val_datasets
 
 ds_train, ds_val_gal, ds_val_quer = train_val_datasets(
     'my_data.csv',      # Path to your CSV file
@@ -49,8 +49,8 @@ ds_train, ds_val_gal, ds_val_quer = train_val_datasets(
 There are a couple of things going on here. Let's break them down:
 
 - The first three arguments are related to the CSV file that describes your dataset. You provide the path to the CSV file and the names of the columns that give the image paths and their corresponding labels.
-- The following three arguments (`num_folds`, `val_fold` and `fold_seed`) determine which data will be put in the training set and which data will be put in the validation set. InID shuffles the set of labels present in your dataset and divides them into `num_fold` approximately equal folds. With `val_fold`, you can choose which of these folds should be used for the validation dataset, and with `fold_seed` you can change the shuffling result. By fixing `num_folds` and `fold_seed` and letting `val_fold` range from `0` to `num_folds - 1`, you can easily perform K-fold cross validation. Read more about it [here](./03-kfold_cross_val). Note that different folds not only contain different samples, but also different *labels*. This is to reflect the ultimate goal of a recognition model, i.e., to recognize classes that were not used during training.
-- The next two arguments (`num_refs` and `ref_seed`) define how the validation samples are distributed among the gallery validation dataset (`ds_val_gal`) and the query validation dataset (`ds_val_quer`). During validation, the samples in the gallery are used as *references* for the respective classes and the query samples are compared with each of these references. From the resulting similarity scores, the model performance can be evaluated. For the gallery set, InID randomly selects `num_refs` samples (seeded by `ref_seed`) for each label in the validation dataset. The other samples are put into the query set.
+- The following three arguments (`num_folds`, `val_fold` and `fold_seed`) determine which data will be put in the training set and which data will be put in the validation set. Recognite shuffles the set of labels present in your dataset and divides them into `num_fold` approximately equal folds. With `val_fold`, you can choose which of these folds should be used for the validation dataset, and with `fold_seed` you can change the shuffling result. By fixing `num_folds` and `fold_seed` and letting `val_fold` range from `0` to `num_folds - 1`, you can easily perform K-fold cross validation. Read more about it [here](./03-kfold_cross_val). Note that different folds not only contain different samples, but also different *labels*. This is to reflect the ultimate goal of a recognition model, i.e., to recognize classes that were not used during training.
+- The next two arguments (`num_refs` and `ref_seed`) define how the validation samples are distributed among the gallery validation dataset (`ds_val_gal`) and the query validation dataset (`ds_val_quer`). During validation, the samples in the gallery are used as *references* for the respective classes and the query samples are compared with each of these references. From the resulting similarity scores, the model performance can be evaluated. For the gallery set, Recognite randomly selects `num_refs` samples (seeded by `ref_seed`) for each label in the validation dataset. The other samples are put into the query set.
 - With the final arguments (`tfm_train` and `tfm_val`), you can pass in the image transformation pipeline to use for the training and the validation data, respectively. This could, for example, be a pipeline built with [TorchVision transforms](https://pytorch.org/vision/stable/transforms.html), but any other callable that takes in a single PIL Image and returns the transformed version should work fine. When the transforms are set to `None` (the default), no transforms will be applied to the images.
 
 The process of splitting the dataset is illustrated in the figure below. Each square represents a sample in the dataset and the letters indicate the class label.
@@ -76,12 +76,12 @@ As training progresses, each column in the weight matrix becomes more and more r
 During inference, we discard the classifier layer and directly use the (normalized) embeddings returned by the backbone.
 
 ```{eval-rst}
-The :class:`Recognizer<inid.model.Recognizer>` class implements the previously described behaviour for you. For example, in the following code, we create a new recognition model based on ResNet-50:
+The :class:`Recognizer<recognite.model.Recognizer>` class implements the previously described behaviour for you. For example, in the following code, we create a new recognition model based on ResNet-50:
 ```
 
 
 ```python
-from inid.model import Recognizer
+from recognite.model import Recognizer
 
 recog_model = Recognizer(
     model_name='resnet50',
@@ -94,23 +94,23 @@ recog_model = Recognizer(
 Let's discuss the arguments:
 
 ```{eval-rst}
-- With ``model_name``, you choose the architecture on which the :class:`Recognizer<inid.model.Recognizer>` should be based. **We support about 80 different architectures** from the `models implemented in TorchVision <https://pytorch.org/vision/main/models.html>`_: classics like AlexNet, GoogLeNet, VGG, Inception, ResNet, but also more recent models like ResNeXt, EfficientNet, and even transformer-based models like ViT and SwinTransformer. For a full list of the supported architectures, see :const:`inid.model.SUPPORTED_MODELS`.
-- ``num_classes`` tells the model how much output neurons the classifier (used for training) should have. If you created a training dataset ``ds_train`` with :func:`inid.data.train_val_datasets`, as we did above, you can just pass in ``len(ds_train.unique_labels)``.
+- With ``model_name``, you choose the architecture on which the :class:`Recognizer<recognite.model.Recognizer>` should be based. **We support about 80 different architectures** from the `models implemented in TorchVision <https://pytorch.org/vision/main/models.html>`_: classics like AlexNet, GoogLeNet, VGG, Inception, ResNet, but also more recent models like ResNeXt, EfficientNet, and even transformer-based models like ViT and SwinTransformer. For a full list of the supported architectures, see :const:`recognite.model.SUPPORTED_MODELS`.
+- ``num_classes`` tells the model how much output neurons the classifier (used for training) should have. If you created a training dataset ``ds_train`` with :func:`recognite.data.train_val_datasets`, as we did above, you can just pass in ``len(ds_train.unique_labels)``.
 - With the ``weights`` argument, you define the pretrained weights to load into the model, if any. This can be any of the weights defined for your chosen model in the `Multi-weight support API <https://pytorch.org/blog/introducing-torchvision-new-multi-weight-support-api/>`_ of TorchVision.
 - Finally, with the ``bias`` argument, you can choose to turn on the bias. We suggest to keep it off, however (the default).
 ```
 
 ## Evaluating predictions
 
-With the training dataset and the model defined, we can go ahead and start training. InID is unopinionated on how you wish to train your model. Whether you like to write your own training loop in plain PyTorch or prefer to wrap everything with a framework like [PyTorch Lightning](https://lightning.ai/docs/pytorch/latest): that's up to you!
+With the training dataset and the model defined, we can go ahead and start training. Recognite is unopinionated on how you wish to train your model. Whether you like to write your own training loop in plain PyTorch or prefer to wrap everything with a framework like [PyTorch Lightning](https://lightning.ai/docs/pytorch/latest): that's up to you!
 
 
 ```{eval-rst}
-Whatever training methodology you choose, at some point, you'll want to measure how well your model performs on data outside of the training set. For this, InID provides multiple utilities. We have already seen the first one, i.e., :func:`inid.data.train_val_datasets`, which returns not only a training dataset, but also a *gallery* and a *query* set that can be used for evaluation. The idea is that we classify the query samples by comparing their embeddings with the embeddings the model computes for the gallery samples.
+Whatever training methodology you choose, at some point, you'll want to measure how well your model performs on data outside of the training set. For this, Recognite provides multiple utilities. We have already seen the first one, i.e., :func:`recognite.data.train_val_datasets`, which returns not only a training dataset, but also a *gallery* and a *query* set that can be used for evaluation. The idea is that we classify the query samples by comparing their embeddings with the embeddings the model computes for the gallery samples.
 
-The classification of the query samples happens by computing a pairwise cosine similarity matrix between each query embedding and each gallery embedding. To do this, you can use the function :func:`inid.eval.score_matrix`.
+The classification of the query samples happens by computing a pairwise cosine similarity matrix between each query embedding and each gallery embedding. To do this, you can use the function :func:`recognite.eval.score_matrix`.
 
-To save runtime, :func:`inid.eval.score_matrix` expects a `PyTorch DataLoader <https://pytorch.org/docs/stable/data.html>`_ for both the gallery and the query datasets. So, somewhere in your code, you'll first need to do something like:
+To save runtime, :func:`recognite.eval.score_matrix` expects a `PyTorch DataLoader <https://pytorch.org/docs/stable/data.html>`_ for both the gallery and the query datasets. So, somewhere in your code, you'll first need to do something like:
 ```
 
 ```python
@@ -134,7 +134,7 @@ dl_val_quer = DataLoader(
 Then, later, somewhere in your validation loop, you can run:
 
 ```python
-from inid.eval import score_matrix
+from recognite.eval import score_matrix
 
 scores, gal_labels, quer_labels = score_matrix(
     model=recog_model,
@@ -155,7 +155,7 @@ Some notes on the returned variables:
 With these scores and labels, we can go ahead and compute some informative metrics:
 
 ```python
-from inid.eval import accuracy, top_k_accuracy, hard_pos_neg_scores, pr_metrics
+from recognite.eval import accuracy, top_k_accuracy, hard_pos_neg_scores, pr_metrics
 
 # The top-1 accuracy
 acc = accuracy(scores, quer_labels, gal_labels)
@@ -174,7 +174,7 @@ For more information about these metrics, see [the guide on metrics](./02-metric
 
 ```{eval-rst}
 .. automodule::
-   inid.eval
+   recognite.eval
 
 .. autosummary::
    :nosignatures:
@@ -187,4 +187,4 @@ For more information about these metrics, see [the guide on metrics](./02-metric
 
 ## Some extra utilities
 
-InID provides some extra utilities that might come in useful, such as a data transformation that could significantly improve your model performance without any extra training. We discuss these [over here](./04-utils).
+Recognite provides some extra utilities that might come in useful, such as a data transformation that could significantly improve your model performance without any extra training. We discuss these [over here](./04-utils).

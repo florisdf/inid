@@ -1,6 +1,6 @@
 import torch
 
-from inid.eval import score_matrix
+from recognite.eval import score_matrix
 
 
 def test_get_score_matrix():

@@ -2,7 +2,7 @@ import pandas as pd
 from PIL import Image
 import pytest
 
-from inid.data import train_val_datasets
+from recognite.data import train_val_datasets
 
 
 def test_no_overlaps(dummy_dataset):

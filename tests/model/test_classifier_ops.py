@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from inid.model import get_module_at_path, set_module_at_path,\
+from recognite.model import get_module_at_path, set_module_at_path,\
     get_ultimate_classifier, split_backbone_classifier, update_classifier
 
 
