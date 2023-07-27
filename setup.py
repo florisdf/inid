@@ -43,6 +43,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/florisdf/recognite',
-    version='0.1.0-rc2',
+    version='0.1.0b',
     zip_safe=False,
 )
