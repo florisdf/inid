@@ -98,37 +98,54 @@ scores, gal_labels, quer_labels = score_matrix(
 ## Running Extrema
 
 ```{eval-rst}
-In a logging tool like `Weights and Biases <https://wandb.ai>`_, you have a table view where you can compare different runs. The values shown for the logged metrics, however, are typically the values that where logged most recently. It might be interesting to compare the *best* attained values during training, however. For this, Recognite contains :class:`recognite.utils.RunningExtrema`.
+In a logging tool like `Weights and Biases <https://wandb.ai>`_, you have a table view where you can compare different runs. The values shown for the logged metrics, however, are the values that where logged most recently. It might be interesting to compare the *best* attained values during each run, however. For this, Recognite contains :class:`recognite.utils.RunningExtrema`.
 
 With the following code, for example, we create an object that keeps track of the maximally attained values of the metrics that will be passed in.
 ```
 
 ```{code-block} python
-from recognite.utils import RunninExtrema, MAX
+from recognite.utils import RunninExtrema, MAX, MIN
 
 running_max = RunningExtrema(MAX)
+running_min = RunningExtrema(MIN)
 ```
 
 For example, after executing the following code
 
 ```python
-running_max.update({
+result_dict = {
     'AP': 0.5,
-    'Accuracy': 0.2,
-})
+    'Accuracy': 0.6,
+}
 
-running_max.update({
+running_max.update(result_dict)
+running_min.update(result_dict)
+
+# ...
+
+result_dict = {
     'AP': 0.8,
-    'Accuracy': 0.1,
-})
+    'Accuracy': 0.4,
+}
 
+running_max.update(result_dict)
+running_min.update(result_dict)
 ```
 
 `running_max.extrema_dict` will give the dictionary:
 
 ```python
 {
-    'MaxAP': 0.8,
-    'MaxAccuracy': 0.2
+    'AP': 0.8,
+    'Accuracy': 0.6
+}
+```
+
+and `running_min.extrema_dict` will give the dictionary:
+
+```python
+{
+    'AP': 0.5,
+    'Accuracy': 0.4
 }
 ```

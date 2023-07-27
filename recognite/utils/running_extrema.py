@@ -23,7 +23,7 @@ class RunningExtrema:
                 f'Unknown extremum "{extremum}". '
                 f'Possible  values: "{MAX}" and "{MIN}".'
             )
-        self._extrema_dict = {}
+        self.extrema_dict = {}
         self.extremum = extremum
 
     def is_new_extremum(self, key: str, val: Any):
@@ -33,7 +33,7 @@ class RunningExtrema:
             key: The key.
             val: The value.
         """
-        if key not in self._extrema_dict:
+        if key not in self.extrema_dict:
             try:
                 # Check if the value can be compared and returns a (single)
                 # boolean value
@@ -42,7 +42,7 @@ class RunningExtrema:
             except (TypeError, RuntimeError):
                 return False
 
-        return self._comp_fn(val, self._extrema_dict[key])
+        return self._comp_fn(val, self.extrema_dict[key])
 
     def _comp_fn(self, new, curr):
         return (
@@ -56,7 +56,7 @@ class RunningExtrema:
         extremum.
         """
         if self.is_new_extremum(key, val):
-            self._extrema_dict[key] = val
+            self.extrema_dict[key] = val
 
     def update_dict(self, d: dict):
         """
@@ -68,11 +68,4 @@ class RunningExtrema:
 
     def clear(self):
         """Clears all running values."""
-        self._extrema_dict = {}
-
-    @property
-    def extrema_dict(self):
-        return {
-            f'{self.extremum.title()}{k}': v
-            for k, v in self._extrema_dict.items()
-        }
+        self.extrema_dict = {}

@@ -25,8 +25,8 @@ def test_update_dict_max():
         'B': 400
     })
 
-    assert running_max.extrema_dict['MaxA'] == 1000
-    assert running_max.extrema_dict['MaxB'] == 500
+    assert running_max.extrema_dict['A'] == 1000
+    assert running_max.extrema_dict['B'] == 500
 
 
 def test_is_new_min():
@@ -53,8 +53,8 @@ def test_update_dict_min():
         'B': 400
     })
 
-    assert running_min.extrema_dict['MinA'] == 10
-    assert running_min.extrema_dict['MinB'] == 400
+    assert running_min.extrema_dict['A'] == 10
+    assert running_min.extrema_dict['B'] == 400
 
 
 def test_clear():
@@ -75,8 +75,8 @@ def test_update_max():
     running_max.update('A', 10)
     running_max.update('B', 500)
 
-    assert running_max.extrema_dict['MaxA'] == 10
-    assert running_max.extrema_dict['MaxB'] == 500
+    assert running_max.extrema_dict['A'] == 10
+    assert running_max.extrema_dict['B'] == 500
 
 
 def test_update_min():
@@ -85,8 +85,8 @@ def test_update_min():
     running_min.update('A', 10)
     running_min.update('B', 500)
 
-    assert running_min.extrema_dict['MinA'] == 10
-    assert running_min.extrema_dict['MinB'] == 500
+    assert running_min.extrema_dict['A'] == 10
+    assert running_min.extrema_dict['B'] == 500
 
 
 def test_iterable_not_added():

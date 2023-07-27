@@ -136,6 +136,6 @@ def validation_epoch(
     running_extrema_worst.update_dict(val_log_dict)
 
     log(running_extrema_best.extrema_dict, epoch_idx=epoch_idx,
-        section='Val')
+        section=f'{running_extrema_best.extremum.title()}Val')
     log(running_extrema_worst.extrema_dict, epoch_idx=epoch_idx,
-        section='Val')
+        section=f'{running_extrema_worst.extremum.title()}Val')
