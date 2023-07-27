@@ -25,7 +25,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'myst_parser'
 ]
-myst_enable_extensions = ["dollarmath", "amsmath"]
+myst_enable_extensions = ["dollarmath", "amsmath", "attrs_inline", "attrs_block"]
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']

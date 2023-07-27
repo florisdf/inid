@@ -55,9 +55,9 @@ python train.py --help
 While the basic example training script already contains many useful functionalities, Recognite can be used to add other interesting features to your training script, such as
 
 - More insightful [metrics](./04-evaluation): the distribution of hard negative and hard positive scores, the distribution of Average Precisions, the mAP, the distribution of thresholds at maximum F1 score,...
-- [Averaging of reference embeddings](./05-utils#Average-reference-embeddings)
-- [Running maximum and minimum of metrics](./05-utils#Running-Extrema)
-- [Three-croping during validation](./05-utils#Three-cropping)
+- [Averaging of reference embeddings](./05-utils.md#avg-ref-embs)
+- [Running maximum and minimum of metrics](./05-utils.md#running-extr)
+- [Three-croping during validation](./05-utils.md#three-crop)
 
 In the [advanced training script](https://github.com/florisdf/recognite/blob/main/examples/advanced/train.py), we have added these features, along with some extras such as:
 
