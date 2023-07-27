@@ -13,8 +13,8 @@ from recognite.eval import accuracy, pr_metrics, hard_pos_neg_scores,\
     score_matrix
 from recognite.utils import RunningExtrema, avg_ref_embs
 
-from .log import log
-from .ckpts import create_checkpoints
+from log import log
+from ckpts import create_checkpoints
 
 
 train_batch_idx = -1  # should have global scope
@@ -105,16 +105,16 @@ def validation_epoch(
     val_log_dict.update({
         'Accuracy': accuracy(scores, quer_labels, gal_labels)
     })
-    val_log_dict.update({
+    val_log_dict_avg_refs = {
         'Accuracy (avg refs)': accuracy(scores_avg_refs, quer_labels,
                                         gal_labels_avg_refs)
-    })
+    }
 
     # Compute distribution of hard positive and negative similarities
     val_log_dict.update(
         hard_pos_neg_scores(scores, quer_labels, gal_labels)
     )
-    val_log_dict.update({
+    val_log_dict_avg_refs.update({
         f'{k} (avg refs)': v
         for k, v in hard_pos_neg_scores(scores_avg_refs, quer_labels,
                                         gal_labels_avg_refs).items()
@@ -122,6 +122,10 @@ def validation_epoch(
 
     # Log validation metrics
     log(val_log_dict, epoch_idx=epoch_idx, section='Val')
+    log(val_log_dict_avg_refs, epoch_idx=epoch_idx, section='Val (avg refs)')
+
+    # Concatenate log dicts
+    val_log_dict = {**val_log_dict, **val_log_dict_avg_refs}
 
     # Check if the value of the metric to optimize is the best
     best_metric_val = val_log_dict[best_metric]
