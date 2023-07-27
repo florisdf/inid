@@ -1,2 +1,6 @@
 Sphinx==7.1.0
 myst-parser==2.0.0
+pandas
+torch>=2.0.1
+torchvision>=0.15.2
+tqdm
