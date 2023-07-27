@@ -1,4 +1,4 @@
-# eval package
+# recognite.eval package
 
 ```{eval-rst}
 .. autofunction:: recognite.eval.accuracy

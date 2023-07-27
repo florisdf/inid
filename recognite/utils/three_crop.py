@@ -36,10 +36,10 @@ def three_crop(
     center = center_crop(img, [size, size])
     end = crop(img, image_height - size, image_width - size, size, size)
 
-    return start, center, end
+    return torch.stack([start, center, end])
 
 
-def collate_with_three_crops(
+def collate_three_crops(
     batch: List[Tuple[Tensor, int]]
 ) -> Tuple[Tensor, Tensor]:
     """Collate a batch containing three-crop crops.
@@ -72,7 +72,7 @@ def collate_with_three_crops(
     return three_crops, labels
 
 
-def get_embeddings_three_crops(
+def embeddings_three_crops(
     model: nn.Module,
     batch: Tensor
 ) -> Tensor:

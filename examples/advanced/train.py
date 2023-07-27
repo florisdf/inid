@@ -1,25 +1,23 @@
 from argparse import ArgumentParser
 from pathlib import Path
-import sys
-from typing import Any, Dict, Callable, Optional, List, Tuple
+from typing import Optional, List, Tuple
 
 import torch
 from torch import nn
-from torch.optim import Optimizer, SGD
-from torch.optim.lr_scheduler import LRScheduler, LinearLR
+from torch.optim import SGD
+from torch.optim.lr_scheduler import LinearLR
 from torch.utils.data import DataLoader
-from torchvision import models
 from torchvision.models._api import Weights
-from torchvision.transforms import CenterCrop, Compose, ToTensor, Lambda,\
-    Normalize, RandomResizedCrop, Resize
 from tqdm import tqdm
 import wandb
 
-from inid.model import Recognizer
-from inid.data import get_train_val_datasets
-from inid.eval import accuracy, pr_metrics, hard_pos_neg_scores, score_matrix
-from inid.utils import RunningExtrema, MAX, MIN, collate_with_three_crops,\
-    get_embeddings_three_crops, avg_ref_embs, ThreeCrop
+from recognite.model import Recognizer, SUPPORTED_MODELS
+from recognite.data import train_val_datasets
+from recognite.utils import RunningExtrema, MAX, MIN,\
+    collate_three_crops, embeddings_three_crops
+
+from .transforms import data_transforms
+from .epochs import training_epoch, validation_epoch
 
 
 def run_training(
@@ -40,7 +38,7 @@ def run_training(
     run_name: str,
 
     gal_num_refs: int,
-    gal_rand_ref_seed: int,
+    gal_ref_seed: int,
     val_fold: int,
     num_folds: int,
     k_fold_seed: int,
@@ -65,7 +63,7 @@ def run_training(
     save_best: bool,
 ):
     # Create datasets
-    tfm_train, tfm_val = get_data_transforms(
+    tfm_train, tfm_val = data_transforms(
         square_size=square_size,
         norm_mean=norm_mean,
         norm_std=norm_std,
@@ -73,15 +71,15 @@ def run_training(
         rrc_ratio=rrc_ratio,
         use_three_crop=use_three_crop,
     )
-    ds_train, ds_gal, ds_quer = get_train_val_datasets(
+    ds_train, ds_gal, ds_quer = train_val_datasets(
         data_csv_file=train_csv,
         label_key=label_key,
         image_key=image_key,
         num_folds=num_folds,
         val_fold=val_fold,
-        k_fold_seed=k_fold_seed,
-        n_refs=gal_num_refs,
-        rand_ref_seed=gal_rand_ref_seed,
+        fold_seed=k_fold_seed,
+        num_refs=gal_num_refs,
+        ref_seed=gal_ref_seed,
         tfm_train=tfm_train,
         tfm_val=tfm_val,
     )
@@ -98,14 +96,14 @@ def run_training(
         batch_size=val_batch_size,
         shuffle=False,
         num_workers=num_workers,
-        collate_fn=collate_with_three_crops if use_three_crop else None
+        collate_fn=collate_three_crops if use_three_crop else None
     )
     dl_val_quer = DataLoader(
         ds_quer,
         batch_size=val_batch_size,
         shuffle=False,
         num_workers=num_workers,
-        collate_fn=collate_with_three_crops if use_three_crop else None
+        collate_fn=collate_three_crops if use_three_crop else None
     )
 
     # Create model
@@ -185,264 +183,9 @@ def run_training(
             best_metric=best_metric,
             ckpt_dir=ckpt_dir,
             run_name=run_name,
-            get_embeddings_fn=get_embeddings_three_crops if use_three_crop
+            get_embeddings_fn=embeddings_three_crops if use_three_crop
             else None,
         )
-
-
-train_batch_idx = -1  # should have global scope
-
-
-def training_epoch(
-    model: nn.Module,
-    loss_fn: nn.Module,
-    optimizer: Optimizer,
-    lr_scheduler: LRScheduler,
-    epoch_idx: int,
-    device: torch.device,
-    dl_train: DataLoader,
-):
-    global train_batch_idx
-    for (train_batch_idx, batch) in enumerate(
-        tqdm(dl_train, leave=False), start=train_batch_idx + 1
-    ):
-        imgs, targets = batch
-        imgs = imgs.to(device)
-        targets = targets.to(device)
-
-        # Compute loss
-        preds = model(imgs)
-        loss = loss_fn(preds, targets)
-
-        # Take optimization + LR scheduler step
-        loss.backward()
-        optimizer.step()
-        lr_scheduler.step()
-        model.zero_grad()
-
-        # Log results and current LR
-        log_dict = {
-            loss_fn.__class__.__name__: loss,
-        }
-        log(log_dict, epoch_idx=epoch_idx,
-            batch_idx=train_batch_idx,
-            section='Train')
-        log(
-            dict(LR=lr_scheduler.get_last_lr()[0]),
-            epoch_idx=epoch_idx,
-            batch_idx=train_batch_idx
-        )
-
-    if torch.isnan(loss):
-        sys.exit('Loss is NaN. Exiting...')
-
-
-def validation_epoch(
-    model: nn.Module,
-    epoch_idx: int,
-    device: torch.device,
-    dl_val_gal: DataLoader,
-    dl_val_quer: DataLoader,
-    running_extrema_best: RunningExtrema,
-    running_extrema_worst: RunningExtrema,
-    save_last: bool,
-    save_best: bool,
-    best_metric: str,
-    ckpt_dir: Path,
-    run_name: str,
-    get_embeddings_fn: Optional[Callable] = None
-):
-    # Compute score matrix and corresponding labels
-    scores, quer_labels, gal_labels = score_matrix(
-        model,
-        device,
-        dl_val_gal,
-        dl_val_quer,
-        get_embeddings_fn=get_embeddings_fn,
-    )
-    # Compute score matrix and corresponding labels when using average
-    # reference embeddings in the gallery
-    scores_avg_refs, _, gal_labels_avg_refs = score_matrix(
-        model,
-        device,
-        dl_val_gal,
-        dl_val_quer,
-        get_embeddings_fn=get_embeddings_fn,
-        agg_gal_fn=avg_ref_embs
-    )
-
-    # Compute PR metrics (only for non-aggregated refs)
-    val_log_dict = pr_metrics(scores, quer_labels, gal_labels)
-
-    # Compute top-1 accuracy
-    val_log_dict.update({
-        'Accuracy': accuracy(scores, quer_labels, gal_labels)
-    })
-    val_log_dict.update({
-        'Accuracy (avg refs)': accuracy(scores_avg_refs, quer_labels,
-                                        gal_labels_avg_refs)
-    })
-
-    # Compute distribution of hard positive and negative similarities
-    val_log_dict.update(
-        hard_pos_neg_scores(scores, quer_labels, gal_labels)
-    )
-    val_log_dict.update({
-        f'{k} (avg refs)': v
-        for k, v in hard_pos_neg_scores(scores_avg_refs, quer_labels,
-                                        gal_labels_avg_refs).items()
-    })
-
-    # Log validation metrics
-    log(val_log_dict, epoch_idx=epoch_idx, section='Val')
-
-    # Check if the value of the metric to optimize is the best
-    best_metric_val = val_log_dict[best_metric]
-    is_best = running_extrema_best.is_new_extremum(best_metric,
-                                                   best_metric_val)
-    # Create checkpoints
-    create_checkpoints(model, run_name, ckpt_dir, save_best=save_best and
-                       is_best, save_last=save_last)
-
-    # Update and log running extrema
-    running_extrema_best.update_dict(val_log_dict)
-    running_extrema_worst.update_dict(val_log_dict)
-
-    log(running_extrema_best.extrema_dict, epoch_idx=epoch_idx,
-        section='Val')
-    log(running_extrema_worst.extrema_dict, epoch_idx=epoch_idx,
-        section='Val')
-
-
-def log(
-    log_dict: Dict[str, Any],
-    epoch_idx: int,
-    batch_idx: Optional[int] = None,
-    section: Optional[int] = None
-):
-    """Logs the given dict to WandB.
-
-    Args:
-        log_dict: The dictionary to log.
-        epoch_idx: The epoch number.
-        batch_idx: The batch number.
-        section: The section to put the logs in.
-    """
-    def get_key(k):
-        if section is None:
-            return k
-        else:
-            return f'{section}/{k}'
-
-    def get_value(v):
-        if isinstance(v, torch.Tensor):
-            return v.detach().cpu()
-        elif isinstance(v, float) or isinstance(v, int):
-            return v
-        else:
-            return None
-
-    for k, v in log_dict.items():
-        k = get_key(k)
-        v = get_value(v)
-        if v is None:
-            continue
-        wandb_dict = {k: v, "epoch": epoch_idx}
-        if batch_idx is not None:
-            wandb_dict['batch_idx'] = batch_idx
-        wandb.log(wandb_dict)
-
-
-def create_checkpoints(
-    model: nn.Module,
-    run_name: str,
-    ckpt_dir: Path,
-    save_best: bool = False,
-    save_last: bool = False,
-):
-    """Creates checkpoints for the model, labeled as 'best' and/or 'last'.
-
-    For both ``save_best`` and ``save_last``, a separate checkpoint is created.
-    If neither ``save_best`` or ``save_last`` is ``True``, no checkpoint is
-    created. If either is ``True``, only a single checkpoint is created.
-
-    Args:
-        model: The model to create a checkpoint for.
-        run_name: A name to prefix the checkpoint filename with.
-        ckpt_dir: The directory to store the checkpoint in.
-        save_best: Whether we should save this model as the 'best'.
-        save_last: Whether we should save this model as the 'last'.
-    """
-    file_prefix = f"{run_name}_"
-    file_suffix = '.pth'
-
-    if not ckpt_dir.exists():
-        ckpt_dir.mkdir(parents=True)
-
-    if save_best:
-        torch.save(
-            model.state_dict(),
-            ckpt_dir
-            / f'{file_prefix}best{file_suffix}'
-        )
-
-    if save_last:
-        torch.save(
-            model.state_dict(),
-            ckpt_dir / f'{file_prefix}last{file_suffix}'
-        )
-
-
-def get_data_transforms(
-    square_size: int,
-    norm_mean: List[float],
-    norm_std: List[float],
-    rrc_scale: Tuple[float],
-    rrc_ratio: Tuple[float],
-    use_three_crop: bool,
-) -> Tuple[Callable, Callable]:
-    """Creates the data transforms for recognition training and validation.
-
-    For training, this includes random resized cropping to a square size and
-    normalization. For validation, this includes resizing (preserving aspect
-    ratio), center or three-crop cropping to a square size and normalization.
-
-    Args:
-        square_size: Size (same for width and height) of the output image.
-        norm_mean: Per-channel mean to subtract from the image.
-        norm_std: Per-channel standard deviation to divide the image by.
-        rrc_scale: Lower and upper bound of the scale that is randomly selected
-            for random resized cropping during training.
-        rrc_ratio: Lower and upper bound of the aspect ratio that is randomly
-            selected for random resized cropping during training.
-        use_three_crop: If ``True``, use three-crop cropping during validation.
-
-    Returns:
-        A tuple ``(train_tfm, val_tfm)`` containing the training and validation
-        transforms.
-    """
-    tfm_train = Compose([
-        ToTensor(),
-        RandomResizedCrop(square_size,
-                          scale=rrc_scale,
-                          ratio=rrc_ratio,
-                          antialias=True),
-        Normalize(mean=norm_mean, std=norm_std)
-    ])
-
-    crop_tfms = [
-        ThreeCrop(),
-        Lambda(lambda crops: torch.stack([crop for crop in crops]))
-    ] if use_three_crop else [CenterCrop(square_size)]
-
-    tfm_val = Compose([
-        ToTensor(),
-        Resize(square_size, antialias=True),
-        *crop_tfms,
-        Normalize(mean=norm_mean, std=norm_std)
-    ])
-
-    return tfm_train, tfm_val
 
 
 def str_list_arg_type(arg):
@@ -462,10 +205,8 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '--model_name',
-        help='The name of the model to use for the recognizer. Should be one '
-        'of the models provided by torchvision (see '
-        'https://pytorch.org/vision/stable/models.html).',
-        type=lambda arg: arg if hasattr(models, arg) else getattr(models, arg),
+        help='The name of the model to use for the recognizer. '
+        f'Supported models: {", ".join(SUPPORTED_MODELS)}.',
         default='resnet50',
     )
     parser.add_argument(
@@ -538,7 +279,7 @@ if __name__ == '__main__':
         type=int
     )
     parser.add_argument(
-        '--gal_rand_ref_seed', default=15,
+        '--gal_ref_seed', default=15,
         help='The seed for the random generator that chooses the validation '
         'samples to use as reference in the gallery.',
         type=int
@@ -546,7 +287,7 @@ if __name__ == '__main__':
 
     # Data CSV file
     parser.add_argument(
-        '--data_train_csv', default='data_train.csv',
+        '--data_csv', default='data.csv',
         help='The CSV file containing the training dataset labels and images.'
     )
     parser.add_argument(
@@ -558,31 +299,6 @@ if __name__ == '__main__':
         '--data_image_key', default='image',
         help='The name of the column containing the image path of each '
         'dataset sample.'
-    )
-
-    # Dataset
-    parser.add_argument(
-        '--data_path', default='/apollo/datasets/NPHM',
-        help='Path to the NPHM dataset.',
-    )
-    parser.add_argument(
-        '--scan_type', default='registration',
-        help='Scan type to use for the input data.',
-    )
-    parser.add_argument(
-        '--keep_bad_scans', action='store_true',
-        help='If set, leave bad scans in the dataset.',
-    )
-    parser.add_argument(
-        '--n_verts_subsample', default=None,
-        help='Number of vertices to subsample.',
-        type=int_or_none,
-    )
-    parser.add_argument(
-        '--subsample_seed', default=15,
-        help='Random seed to use for shuffling the subsample indices during '
-        'training.',
-        type=int
     )
 
     # Dataloader args
@@ -630,8 +346,11 @@ if __name__ == '__main__':
     )
 
     # Device arg
-    parser.add_argument('--device', default='cuda',
-                        help='The device (cuda/cpu) to use.')
+    parser.add_argument(
+        '--device',
+        default='cuda' if torch.cuda.is_available() else 'cpu',
+        help='The device (cuda/cpu) to use.'
+    )
 
     parser.add_argument(
         '--square_size',
@@ -695,11 +414,11 @@ if __name__ == '__main__':
         use_three_crop=args.use_three_crop,
 
         gal_num_refs=args.gal_num_refs,
-        gal_rand_ref_seed=args.gal_rand_ref_seed,
+        gal_ref_seed=args.gal_ref_seed,
         val_fold=args.k_fold_val_fold,
         num_folds=args.k_fold_num_folds,
-        k_fold_seed=args.k_fold_seed,
-        train_csv=args.data_train_csv,
+        fold_seed=args.k_fold_seed,
+        train_csv=args.data_csv,
         label_key=args.data_label_key,
         image_key=args.data_image_key,
 

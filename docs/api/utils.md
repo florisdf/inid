@@ -1,4 +1,4 @@
-# utils package
+# recognite.utils package
 
 ## Average reference embeddings
 
