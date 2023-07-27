@@ -56,7 +56,7 @@ python train.py \
     --wandb_entity=your_user_name --wandb_project=your_project
 ```
 
-For more information on the different command line arguments, you can run
+For more details on the different command line arguments, you can run
 
 ```bash
 python train.py --help
