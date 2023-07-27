@@ -1,5 +1,6 @@
 # Extra utilities
 
+(avg-ref-embs)=
 ## Average reference embeddings
 
 ```{eval-rst}
@@ -28,6 +29,7 @@ The returned ``scores`` will now contain the scores when averaged reference embe
 You can also use a custom function for `agg_gal_fn`. It should have a signature like `my_agg_fn(gal_embs, gal_labels)` taking in the gallery embeddings and labels and returns their aggregated versions.
 ```
 
+(three-crop)=
 ## Three-cropping
 
 A recognition network is typically trained with *square* input images. In real-life, however, the image to recognize will often have a non-square aspect ratio. One thing you could do is resize each incoming image to a square shape, ignoring the original aspect ratio. But with such a transformation, we can loose useful information about the aspect ratio of the input image. Moreover, the model might not be optimized for the introduced change in aspect ratio.
@@ -95,6 +97,7 @@ scores, gal_labels, quer_labels = score_matrix(
 )
 ```
 
+(running-extr)=
 ## Running Extrema
 
 ```{eval-rst}
