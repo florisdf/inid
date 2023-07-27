@@ -2,8 +2,8 @@ import torch
 from torchvision.transforms.functional import to_tensor
 from PIL import Image
 
-from recognite.utils import three_crop, collate_with_three_crops,\
-    get_embeddings_three_crops
+from recognite.utils import three_crop, collate_three_crops,\
+    embeddings_three_crops
 
 
 def test_three_crop_horizontal():
@@ -48,7 +48,7 @@ def test_collate_with_three_crops():
         (torch.randn(T, C, H, W), 0)
         for _ in range(B)
     ]
-    ret_3_crops, ret_labels = collate_with_three_crops(tuple_batch)
+    ret_3_crops, ret_labels = collate_three_crops(tuple_batch)
 
     assert ret_3_crops.shape == (B, T, C, H, W)
     assert ret_labels.shape == (B,)
@@ -71,6 +71,6 @@ def test_get_embeddings_three_crops():
     mean_crops_2 = (crops_2[0] + crops_2[1] + crops_2[2])/3
     exp_embs = torch.stack([mean_crops_1, mean_crops_2])
 
-    ret_embs = get_embeddings_three_crops(torch.nn.Identity(), batch)
+    ret_embs = embeddings_three_crops(torch.nn.Identity(), batch)
 
     assert (exp_embs == ret_embs).all()
