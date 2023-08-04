@@ -52,16 +52,16 @@ With these scores and labels, we can go ahead and compute some informative metri
 from recognite.eval import accuracy, top_k_accuracy, hard_pos_neg_scores, pr_metrics
 
 # The top-1 accuracy
-acc = accuracy(scores, quer_labels, gal_labels)
+acc = accuracy(scores, gal_labels, quer_labels)
 
 # The top-5 accuracy
-top5_acc = top_k_accuracy(scores, quer_labels, gal_labels, k=5)
+top5_acc = top_k_accuracy(scores, gal_labels, quer_labels, k=5)
 
 # PR curves, APs, mAP,...
-prs = pr_metrics(scores, quer_labels, gal_labels)
+prs = pr_metrics(scores, gal_labels, quer_labels)
 
 # Scores for the hardest positives and negatives
-hpn_scores = hard_pos_neg_scores(scores, quer_labels, gal_labels)
+hpn_scores = hard_pos_neg_scores(scores, gal_labels, quer_labels)
 ```
 
 For more information about these metrics, we refer to the corresponding docs:
