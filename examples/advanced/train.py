@@ -73,8 +73,8 @@ def run_training(
     )
     ds_train, ds_gal, ds_quer = train_val_datasets(
         data_csv_file=train_csv,
-        label_key=label_key,
         image_key=image_key,
+        label_key=label_key,
         num_folds=num_folds,
         val_fold=val_fold,
         fold_seed=fold_seed,

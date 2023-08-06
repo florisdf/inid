@@ -67,9 +67,10 @@ class Recognizer(nn.Module):
     def __init__(
         self,
         model_name: str,
-        num_classes: int,
+        num_classes: Optional[int] = None,
         weights: Optional[Union[Weights, str]] = None,
         clf_bias: bool = False,
+        normalize: bool = True,
     ):
         """
         Args:
@@ -79,7 +80,9 @@ class Recognizer(nn.Module):
                 classes (see ``num_classes``). Note that we normalize the
                 weights of the fully connected layer so that the columns have
                 norm 1.
-            num_classes: The number of classes outputted by the classifier.
+            num_classes: The number of classes outputted by the classifier. If
+                ``None``, don't use classifier and instead also return the
+                backbone's embedding during training.
             weights: The pretrained weights to initialize the model with. If
                 ``None``, the weights are randomly initialized. See also
                 <https://pytorch.org/vision/stable/models.html>.
@@ -88,17 +91,26 @@ class Recognizer(nn.Module):
                 normalization can worsen the results (see
                 <https://dl.acm.org/doi/10.1145/3123266.3123359>), so we
                 suggest to keep it turned off.
+            normalize: If ``True``, normalize the embedding returned by the
+                backbone, as well as the weights of the classifier (if
+                applicable).
         """
         super().__init__()
 
         if model_name not in SUPPORTED_MODELS:
             raise ValueError(f'Unsupported model "{model_name}"')
 
-        model = models.get_model(model_name, weights=weights)
-        update_classifier(model, num_classes, bias=clf_bias)
+        self.normalize = normalize
 
-        self.backbone, self.classifier = split_backbone_classifier(model)
-        self._ult_clf = get_ultimate_classifier(self.classifier)
+        model = models.get_model(model_name, weights=weights)
+
+        if num_classes is not None:
+            update_classifier(model, num_classes, bias=clf_bias)
+            self.backbone, self.classifier = split_backbone_classifier(model)
+            self._ult_clf = get_ultimate_classifier(self.classifier)
+        else:
+            self.backbone, self.classifier = split_backbone_classifier(model)
+            self.classifier = None
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Passes a batch of input images through the model.
@@ -115,7 +127,7 @@ class Recognizer(nn.Module):
             The classification logits during training, and the embeddings
             during inference (evaluation).
         """
-        if self.training:
+        if self.training and self.normalize and self.classifier is not None:
             self._normalize_clf_layer()
 
         x = self.backbone(x)
@@ -124,9 +136,10 @@ class Recognizer(nn.Module):
             # Support GoogLeNet and Inception v3
             x = x.logits
 
-        x = x / torch.norm(x, dim=1, keepdim=True)
+        if self.normalize:
+            x = x / torch.norm(x, dim=1, keepdim=True)
 
-        if self.training:
+        if self.training and self.classifier is not None:
             x = self.classifier(x)
 
         return x

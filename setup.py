@@ -21,7 +21,7 @@ setup(
     author_email='floris.defeyter@kuleuven.be',
     python_requires='>=3.6',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
@@ -43,6 +43,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/florisdf/recognite',
-    version='0.1.1',
+    version='0.1.2-alpha',
     zip_safe=False,
 )

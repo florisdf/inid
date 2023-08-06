@@ -23,8 +23,8 @@ from recognite.data import train_val_datasets
 
 ds_train, ds_val_gal, ds_val_quer = train_val_datasets(
     'my_data.csv',      # Path to your CSV file
-    label_key='label',  # The column containing the labels
     image_key='image',  # The column containing the image paths
+    label_key='label',  # The column containing the labels
 
     num_folds=5,        # The number of folds to use for the train-val split
     val_fold=0,         # Which fold to use as validation set
