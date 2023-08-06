@@ -11,6 +11,7 @@ def score_matrix(
     model: nn.Module,
     dl_gal: DataLoader,
     dl_quer: DataLoader,
+    metric='inner',
     device: Optional[torch.device] = None,
     agg_gal_fn: Optional[Callable] = None,
     get_embeddings_fn: Optional[Callable] = None
@@ -43,6 +44,11 @@ def score_matrix(
         dl_quer: The data loader for the query data. It should yield a tuple
             ``(imgs, labels)`` containing the batch of images and labels when
             iterating over it.
+        metric: The metric to use for computing the scores. Can be ``'inner'`
+            (inner prosuct), ``'cosine'`` (cosine similarity), ``'euclid'``
+            (Euclidean distance), ``'sq_euclid'`` (squared Euclidean distance).
+            Distances will be negated so that higher score means higher
+            similarity.
         device: The device on which to perform the computations. If ``None``,
             use CUDA if it is available.
         agg_gal_fn: A function that aggregates the gallery embeddings and
@@ -60,17 +66,17 @@ def score_matrix(
     assert not model.training
     model = model.to(device)
 
-    gal_embeddings = []
+    gal_embs = []
     gal_labels = []
     for imgs, labels in tqdm(dl_gal, leave=False):
         _compute_and_append_embeddings(model, imgs, labels, device,
-                                       gal_embeddings, gal_labels,
+                                       gal_embs, gal_labels,
                                        get_embeddings_fn)
-    gal_embeddings = torch.cat(gal_embeddings)
+    gal_embs = torch.cat(gal_embs)
     gal_labels = torch.cat(gal_labels)
 
     if agg_gal_fn is not None:
-        gal_embeddings, gal_labels = agg_gal_fn(gal_embeddings, gal_labels)
+        gal_embs, gal_labels = agg_gal_fn(gal_embs, gal_labels)
 
     scores = []
     quer_labels = []
@@ -79,11 +85,43 @@ def score_matrix(
         _compute_and_append_embeddings(model, imgs, labels, device,
                                        q_embs, quer_labels,
                                        get_embeddings_fn)
-        scores.append(torch.matmul(q_embs[0], gal_embeddings.T))
+        q_embs = q_embs[0]
+
+        if metric == 'inner':
+            q_scores = _inner(q_embs, gal_embs)
+        elif metric == 'cosine':
+            q_scores = _cosine(q_embs, gal_embs)
+        elif metric == 'sq_euclid':
+            q_scores = - _sq_euclid(q_embs, gal_embs)
+        elif metric == 'euclid':
+            q_scores = - _euclid(q_embs, gal_embs)
+        else:
+            raise ValueError(f'Unknown metric "{metric}"')
+
+        scores.append(q_scores)
+
     scores = torch.cat(scores)
     quer_labels = torch.cat(quer_labels)
 
     return scores, gal_labels, quer_labels
+
+
+def _inner(t1, t2):
+    return torch.matmul(t1, t2.T)
+
+
+def _cosine(t1, t2):
+    t1 = t1 / t1.norm(dim=1)
+    t2 = t2 / t2.norm(dim=1)
+    return _inner(t1, t2)
+
+
+def _sq_euclid(t1, t2):
+    return (t1[:, None, :] - t2[None, ...]).pow(2).sum(dim=-1)
+
+
+def _euclid(t1, t2):
+    return _sq_euclid(t1, t2).sqrt()
 
 
 def _compute_and_append_embeddings(
