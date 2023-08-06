@@ -25,7 +25,7 @@ def test_complete(dummy_dataset):
     assert (ret_df_train_val == df_all).all().all()
 
 
-def test_n_refs(dummy_dataset):
+def test_num_refs(dummy_dataset):
     df_all, ds_kwargs = dummy_dataset
 
     ds_kwargs['num_refs'] = 2

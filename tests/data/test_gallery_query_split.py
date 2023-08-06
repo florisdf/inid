@@ -17,7 +17,7 @@ def test_no_sample_overlap():
     ])
     df_gal, df_quer = split_gallery_query(
         df,
-        n_refs=1,
+        num_refs=1,
         seed=0,
         label_key='label'
     )
@@ -39,7 +39,7 @@ def test_complete():
     ])
     df_gal, df_quer = split_gallery_query(
         df,
-        n_refs=1,
+        num_refs=1,
         seed=0,
         label_key='label'
     )
@@ -50,7 +50,7 @@ def test_complete():
     assert (df_cat == df).all().all()
 
 
-def test_n_refs():
+def test_num_refs():
     df = pd.DataFrame([
         {'label': 'A', 'image': 'A_0001.jpg'},
         {'label': 'A', 'image': 'A_0002.jpg'},
@@ -64,7 +64,7 @@ def test_n_refs():
     ])
     df_gal, df_quer = split_gallery_query(
         df,
-        n_refs=2,
+        num_refs=2,
         seed=0,
         label_key='label'
     )
@@ -86,7 +86,7 @@ def test_label_key():
     ])
     df_gal, df_quer = split_gallery_query(
         df,
-        n_refs=2,
+        num_refs=2,
         seed=0,
         label_key='name'
     )

@@ -5,8 +5,8 @@ import pandas as pd
 
 def split_gallery_query(
     df: pd.DataFrame,
-    n_refs: int,
-    seed: int,
+    num_refs: int = 1,
+    seed: int = 0,
     label_key: str = 'label'
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Splits a DataFrame in a gallery and query subset.
@@ -16,7 +16,7 @@ def split_gallery_query(
 
     Args:
         df: The DataFrame to split.
-        n_refs: The number of samples per label to use for the gallery.
+        num_refs: The number of samples per label to use for the gallery.
         seed: The seed of the random generator used for choosing the gallery
             samples.
         label_key: The name of the column that contains the labels of the
@@ -26,7 +26,7 @@ def split_gallery_query(
         A tuple with the gallery and query DataFrame.
     """
     gal_idxs = (df.groupby(label_key)
-                .sample(n_refs, random_state=seed)
+                .sample(num_refs, random_state=seed)
                 .index)
     gal_mask = df.index.isin(gal_idxs)
     df_gal = df.loc[gal_mask]
