@@ -6,9 +6,9 @@ import pandas as pd
 
 def k_fold_trainval_split(
     df: pd.DataFrame,
-    num_folds: int,
-    val_fold: int,
-    seed: int,
+    num_folds: int = 5,
+    val_fold: int = 0,
+    seed: int = 0,
     label_key='label'
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Splits the given DataFrame into a train and validation subset.
