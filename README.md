@@ -35,9 +35,7 @@ cp recognite/examples/basic/train.py path/to/your/recognition_project
 pip install -r recognite/examples/basic/requirements.txt
 ```
 
-```{note}
-The last line installs [Weights and Biases](https://wandb.ai), which is used for logging. Make sure to create an account and run `wandb login` from your command line.
-```
+> The last line installs [Weights and Biases](https://wandb.ai), which is used for logging. Make sure to create an account and run `wandb login` from your command line.
 
 The training script trains a recognition model of your choice on a dataset you define, using tools from the Recognite library. The dataset should be given as a CSV file (`--data_csv`) with two columns: `image` (containing image paths) and `label` (containing the corresponding labels). We split the unique labels of the dataset into 5 folds. Labels in the fold defined by `--val_fold` are used for validation. The others are used for training. During validation, we measure the model's top-1 accuracy when classifying a set of queries by comparing the query embeddings with the embeddings of a set of reference samples (`--num_refs` per validation label). This accuracy is logged to Weights and Biases (see `--wandb_entity` and `--wandb_project`).
 
@@ -56,7 +54,7 @@ python train.py \
     --wandb_entity=your_user_name --wandb_project=your_project
 ```
 
-For more information on the different command line arguments, you can run
+For more details on the different command line arguments, you can run
 
 ```bash
 python train.py --help
@@ -64,4 +62,4 @@ python train.py --help
 
 ## More information
 
-See [the docs](https://recognite.readthedocs.io/) for a more detailed description of the library.
+See [the docs](https://recognite.readthedocs.io/) for more information and examples with Recognite.

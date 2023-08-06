@@ -205,6 +205,7 @@ def validation_epoch(
     })
 
     # Create checkpoints
+    ckpt_path.mkdir(parents=True, exist_ok=True)
     torch.save(
         model.state_dict(),
         ckpt_path / f'{wandb.run.id}_ep{epoch_idx}.pth'

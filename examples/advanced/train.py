@@ -16,8 +16,8 @@ from recognite.data import train_val_datasets
 from recognite.utils import RunningExtrema, MAX, MIN,\
     collate_three_crops, embeddings_three_crops
 
-from .transforms import data_transforms
-from .epochs import training_epoch, validation_epoch
+from transforms import data_transforms
+from epochs import training_epoch, validation_epoch
 
 
 def run_training(
@@ -41,7 +41,7 @@ def run_training(
     gal_ref_seed: int,
     val_fold: int,
     num_folds: int,
-    k_fold_seed: int,
+    fold_seed: int,
     train_csv: str,
     label_key: str,
     image_key: str,
@@ -77,7 +77,7 @@ def run_training(
         label_key=label_key,
         num_folds=num_folds,
         val_fold=val_fold,
-        fold_seed=k_fold_seed,
+        fold_seed=fold_seed,
         num_refs=gal_num_refs,
         ref_seed=gal_ref_seed,
         tfm_train=tfm_train,
@@ -229,19 +229,19 @@ if __name__ == '__main__':
         help='The path to load model checkpoint weights from.'
     )
     parser.add_argument(
-        '--save_best', action='store_true',
-        help='If set, save a checkpoint containg the weights with the best '
-        'performance, as defined by --best_metric and --lower_is_better.'
+        '--no_save_best', action='store_true',
+        help='If set, don\'t save a checkpoint containg the weights with the '
+        'best performance, as defined by --best_metric and --lower_is_better.'
     )
     parser.add_argument(
-        '--save_last', action='store_true',
-        help='If set, save a checkpoint containing the weights of the last '
-        'epoch.'
+        '--no_save_last', action='store_true',
+        help='If set, don\'t save a checkpoint containing the weights of the '
+        'last epoch.'
     )
     parser.add_argument(
         '--best_metric', default='mAP',
         help='If this metric improves, create a checkpoint '
-        '(when --save_best is set).'
+        '(when --no_save_best is not set).'
     )
     parser.add_argument(
         '--lower_is_better', action='store_true',
@@ -435,6 +435,6 @@ if __name__ == '__main__':
         run_name=wandb.run.id,
 
         load_ckpt=args.load_ckpt,
-        save_last=args.save_last,
-        save_best=args.save_best,
+        save_last=not args.no_save_last,
+        save_best=not args.no_save_best,
     )
