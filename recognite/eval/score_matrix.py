@@ -9,9 +9,9 @@ from tqdm import tqdm
 @torch.no_grad()
 def score_matrix(
     model: nn.Module,
-    device: torch.device,
     dl_gal: DataLoader,
     dl_quer: DataLoader,
+    device: Optional[torch.device] = None,
     agg_gal_fn: Optional[Callable] = None,
     get_embeddings_fn: Optional[Callable] = None
 ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
@@ -37,13 +37,14 @@ def score_matrix(
 
     Args:
         model: The model used for embedding extraction.
-        device: The device on which to perform the computations.
         dl_gal: The data loader for the gallery data. It should yield a tuple
             ``(imgs, labels)`` containing the batch of images and labels when
             iterating over it.
         dl_quer: The data loader for the query data. It should yield a tuple
             ``(imgs, labels)`` containing the batch of images and labels when
             iterating over it.
+        device: The device on which to perform the computations. If ``None``,
+            use CUDA if it is available.
         agg_gal_fn: A function that aggregates the gallery embeddings and
             labels. It should take two arguments: the gallery embeddings and
             the gallery labels.
@@ -54,6 +55,8 @@ def score_matrix(
         The score matrix, the labels of the gallery items (columns) and the
         labels of the queries (rows).
     """
+    if device is None:
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
     assert not model.training
     model = model.to(device)
 

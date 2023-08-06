@@ -16,7 +16,6 @@ from reconite.utils import avg_ref_embs
 
 scores, gal_labels, quer_labels = score_matrix(
     model=recog_model,
-    device=device,
     dl_gal=dl_val_gal,
     dl_quer=dl_val_quer,
     agg_gal_fn=avg_ref_embs
@@ -90,7 +89,6 @@ from recognite.eval import score_matrix
 
 scores, gal_labels, quer_labels = score_matrix(
     model=recog_model,
-    device=device,
     dl_gal=dl_val_gal,
     dl_quer=dl_val_quer,
     get_embeddings_fn=get_embeddings_three_crops

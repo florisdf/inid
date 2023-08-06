@@ -34,7 +34,6 @@ from recognite.eval import score_matrix
 
 scores, gal_labels, quer_labels = score_matrix(
     model=recog_model,
-    device=device,
     dl_gal=dl_val_gal,
     dl_quer=dl_val_quer
 )
