@@ -69,3 +69,28 @@ def test_bias():
 
     assert recog_bias.classifier.bias is not None
     assert recog_no_bias.classifier.bias is None
+
+
+def test_no_classes():
+    model = Recognizer(model_name='resnet18')
+
+    out = model(torch.randn(1, 3, 224, 224))
+
+    assert model.classifier is None
+    assert out.shape == (1, 512)
+
+
+def test_normalize_false():
+    model = Recognizer(model_name='resnet18', normalize=False)
+
+    out = model(torch.randn(1, 3, 224, 224))
+
+    assert not torch.isclose(out.norm(dim=1), torch.ones(1, 1))
+
+
+def test_normalize_true():
+    model = Recognizer(model_name='resnet18', normalize=True)
+
+    out = model(torch.randn(1, 3, 224, 224))
+
+    assert torch.isclose(out.norm(dim=1), torch.ones(1, 1))
