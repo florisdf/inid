@@ -77,6 +77,35 @@ def test_consistent_label_to_int(dummy_dataset):
                .intersection(ds_val_gal.label_to_int)) == 0
 
 
+def test_default_args(dummy_dataset):
+    df_all, ds_kwargs = dummy_dataset
+
+    exp_defaults = dict(
+        num_folds=5,
+        val_fold=0,
+        fold_seed=0,
+        num_refs=1,
+        ref_seed=0,
+        tfm_train=None,
+        tfm_val=None,
+    )
+
+    datasets_0 = train_val_datasets(
+        ds_kwargs['data_csv_file'],
+        ds_kwargs['image_key'],
+        ds_kwargs['label_key'],
+    )
+    datasets = train_val_datasets(
+        ds_kwargs['data_csv_file'],
+        ds_kwargs['image_key'],
+        ds_kwargs['label_key'],
+        **exp_defaults
+    )
+
+    for ds_0, ds_1 in zip(datasets_0, datasets):
+        assert (ds_0.df == ds_1.df).all().all()
+
+
 @pytest.fixture
 def dummy_dataset(tmp_path):
     df_all = pd.DataFrame([

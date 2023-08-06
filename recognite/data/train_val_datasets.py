@@ -1,4 +1,4 @@
-from typing import Callable, Tuple
+from typing import Callable, Optional, Tuple
 
 import pandas as pd
 
@@ -9,15 +9,15 @@ from .data_frame_dataset import DataFrameDataset
 
 def train_val_datasets(
     data_csv_file: str,
-    label_key: str,
-    image_key: str,
-    num_folds: int,
-    val_fold: int,
-    fold_seed: int,
-    num_refs: int,
-    ref_seed: int,
-    tfm_train: Callable = None,
-    tfm_val: Callable = None,
+    image_key: str = 'image',
+    label_key: str = 'label',
+    num_folds: int = 5,
+    val_fold: int = 0,
+    fold_seed: int = 0,
+    num_refs: int = 1,
+    ref_seed: int = 0,
+    tfm_train: Optional[Callable] = None,
+    tfm_val: Optional[Callable] = None,
 ) -> Tuple[DataFrameDataset, DataFrameDataset, DataFrameDataset]:
     """Creates training and validation datasets for recognition training.
 
@@ -52,10 +52,10 @@ def train_val_datasets(
     Args:
         data_csv_file: The path of the CSV file containing the images and
             corresponding labels.
-        label_key: The column in the CSV file that contains the label of each
-            image.
         image_key: The column in the CSV file that contains th image path of
             each image.
+        label_key: The column in the CSV file that contains the label of each
+            image.
         num_folds: The number of folds to use for splitting the dataset into
             training and validation. Note that the folds are label-based, not
             sample-based.

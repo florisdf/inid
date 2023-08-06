@@ -14,7 +14,7 @@ from tqdm import tqdm
 import wandb
 
 from recognite.model import Recognizer, SUPPORTED_MODELS
-from recognite.data import get_train_val_datasets
+from recognite.data import train_val_datasets
 from recognite.eval import accuracy, score_matrix
 
 
@@ -60,10 +60,10 @@ def run_training(
         Normalize(mean=NORM_MEAN, std=NORM_STD)
     ])
 
-    ds_train, ds_gal, ds_quer = get_train_val_datasets(
+    ds_train, ds_gal, ds_quer = train_val_datasets(
         data_csv_file=data_csv,
-        label_key=LABEL_KEY,
         image_key=IMAGE_KEY,
+        label_key=LABEL_KEY,
 
         num_folds=NUM_FOLDS,
         val_fold=val_fold,
