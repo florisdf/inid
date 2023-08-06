@@ -1,3 +1,5 @@
+import logging
+import warnings
 from typing import Tuple
 
 import pandas as pd
@@ -25,9 +27,32 @@ def split_gallery_query(
     Returns:
         A tuple with the gallery and query DataFrame.
     """
-    gal_idxs = (df.groupby(label_key)
-                .sample(num_refs, random_state=seed)
-                .index)
+    df_copy = df.copy()
+
+    gal_idxs = []
+    undersampled_labels = []
+
+    shuffled_df = df_copy.sample(frac=1.0, random_state=seed)
+
+    for label, group in shuffled_df.groupby(label_key):
+        true_num_refs = min(len(group), num_refs)
+
+        if true_num_refs < num_refs:
+            undersampled_labels.append(label)
+
+        gal_idxs.extend(group.iloc[:true_num_refs].index)
+
+    if len(undersampled_labels) > 0:
+        warnings.warn(
+            f'{len(undersampled_labels)} labels did not contain enough '
+            f'reference candidates to select {num_refs} references for '
+            'the gallery. See debug log for more info.'
+        )
+        logging.debug(
+            f'Labels without less than {num_refs} (num_refs) samples: '
+            ', '.join(undersampled_labels)
+        )
+
     gal_mask = df.index.isin(gal_idxs)
     df_gal = df.loc[gal_mask]
     df_quer = df.loc[~gal_mask]

@@ -1,3 +1,4 @@
+import pytest
 import pandas as pd
 
 from recognite.data import split_gallery_query
@@ -17,9 +18,6 @@ def test_no_sample_overlap():
     ])
     df_gal, df_quer = split_gallery_query(
         df,
-        num_refs=1,
-        seed=0,
-        label_key='label'
     )
     for im in df_quer['image']:
         assert im not in df_gal['image'].values
@@ -39,9 +37,6 @@ def test_complete():
     ])
     df_gal, df_quer = split_gallery_query(
         df,
-        num_refs=1,
-        seed=0,
-        label_key='label'
     )
 
     df_cat = pd.concat([
@@ -92,3 +87,19 @@ def test_label_key():
     )
     for label, group in df_gal.groupby('name'):
         assert len(group) == 2
+
+
+def test_warn_undersampled_labels_in_gallery():
+    df = pd.DataFrame([
+        {'label': 'A', 'image': 'A_0001.jpg'},
+        {'label': 'B', 'image': 'B_0001.jpg'},
+        {'label': 'C', 'image': 'C_0001.jpg'},
+        {'label': 'D', 'image': 'D_0001.jpg'},
+        {'label': 'D', 'image': 'D_0002.jpg'},
+    ])
+
+    with pytest.warns(
+        match=r'3 labels did not contain enough reference candidates to '
+        r'select 2 references for the gallery\..*'
+    ):
+        df_gal, df_quer = split_gallery_query(df, num_refs=2)
