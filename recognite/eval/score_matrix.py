@@ -161,6 +161,11 @@ def sort_scores(
     Returns:
         A tuple with the sorted scores and labels.
     """
+    if scores.shape[1] != gallery_labels.shape[0]:
+        raise ValueError(
+            f"Inconsistent shape for score matrix ({scores.shape}) "
+            f"and gallery labels ({gallery_labels.shape})."
+        )
     sorted_idxs = torch.argsort(scores, dim=1, descending=True)
     sorted_scores = torch.gather(scores, dim=1, index=sorted_idxs)
     sorted_labels = torch.gather(gallery_labels.expand_as(sorted_idxs),
