@@ -43,9 +43,12 @@ def split_gallery_query(
         gal_idxs.extend(group.iloc[:true_num_refs].index)
 
     if len(undersampled_labels) > 0:
+        num_undersamp = len(undersampled_labels)
+        num_labels = len(shuffled_df[label_key].unique())
         warnings.warn(
-            f'{len(undersampled_labels)} labels did not contain enough '
-            f'reference candidates to select {num_refs} references for '
+            f'{num_undersamp} out of {num_labels} '
+            f'labels ({num_undersamp/num_labels*100:.1f} %) did not contain '
+            f'enough reference candidates to select {num_refs} references for '
             'the gallery. See debug log for more info.'
         )
         logging.debug(

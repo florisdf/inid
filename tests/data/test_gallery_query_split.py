@@ -99,7 +99,7 @@ def test_warn_undersampled_labels_in_gallery():
     ])
 
     with pytest.warns(
-        match=r'3 labels did not contain enough reference candidates to '
-        r'select 2 references for the gallery\..*'
+        match=r'3 out of 4 labels \(75.0 %\) did not contain enough reference '
+        r'candidates to select 2 references for the gallery\..*'
     ):
         df_gal, df_quer = split_gallery_query(df, num_refs=2)
