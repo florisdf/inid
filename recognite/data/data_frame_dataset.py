@@ -50,7 +50,7 @@ class DataFrameDataset(Dataset):
 
     def __getitem__(self, idx):
         row = self.df.iloc[idx]
-        im = Image.open(row[self.image_key])
+        im = Image.open(row[self.image_key]).convert('RGB')
         label = self.label_to_int[row[self.label_key]]
 
         if self.transform is not None:

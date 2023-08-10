@@ -37,3 +37,22 @@ def test_data_frame_dataset(tmp_path):
 
         assert (to_tensor(ret_im) == to_tensor(exp_im)).all()
         assert ret_label == exp_label
+
+
+def test_gray_to_rgb(tmp_path):
+    df = pd.DataFrame([
+        {'image': str(tmp_path / 'A_0000.jpg'), 'label': 'A'},
+    ])
+
+    for i, img_path in enumerate(df['image']):
+        c = int(i * 255 / len(df))
+        Image.new('L', (2, 2), c).save(img_path)
+
+    label_to_int = {
+        'A': 0,
+    }
+
+    ds = DataFrameDataset(df, label_key='label', image_key='image',
+                          label_to_int=label_to_int, transform=None)
+
+    assert ds[0][0].mode == 'RGB'
