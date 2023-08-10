@@ -37,8 +37,8 @@ def run_training(
     ckpts_path: Path,
     run_name: str,
 
-    gal_num_refs: int,
-    gal_ref_seed: int,
+    num_refs: int,
+    ref_seed: int,
     val_fold: int,
     num_folds: int,
     fold_seed: int,
@@ -46,7 +46,7 @@ def run_training(
     label_key: str,
     image_key: str,
 
-    square_size: int,
+    size: int,
     rrc_scale: Tuple[float],
     rrc_ratio: Tuple[float],
     norm_mean: List[float],
@@ -64,7 +64,7 @@ def run_training(
 ):
     # Create datasets
     tfm_train, tfm_val = data_transforms(
-        square_size=square_size,
+        square_size=size,
         norm_mean=norm_mean,
         norm_std=norm_std,
         rrc_scale=rrc_scale,
@@ -78,8 +78,8 @@ def run_training(
         num_folds=num_folds,
         val_fold=val_fold,
         fold_seed=fold_seed,
-        num_refs=gal_num_refs,
-        ref_seed=gal_ref_seed,
+        num_refs=num_refs,
+        ref_seed=ref_seed,
         tfm_train=tfm_train,
         tfm_val=tfm_val,
     )
@@ -255,17 +255,17 @@ if __name__ == '__main__':
 
     # K-Fold args
     parser.add_argument(
-        '--k_fold_seed', default=15,
+        '--fold_seed', default=15,
         help='Seed for the dataset shuffle used to create the K folds.',
         type=int
     )
     parser.add_argument(
-        '--k_fold_num_folds', default=5,
+        '--num_folds', default=5,
         help='The number of folds to use.',
         type=int
     )
     parser.add_argument(
-        '--k_fold_val_fold', default=0,
+        '--val_fold', default=0,
         help='The index of the validation fold. '
         'If None, all folds are used for training.',
         type=int_or_none
@@ -273,13 +273,13 @@ if __name__ == '__main__':
 
     # Gallery args
     parser.add_argument(
-        '--gal_num_refs', default=1,
+        '--num_refs', default=1,
         help='The number of references to use in the gallery for each label '
         'in the validation set.',
         type=int
     )
     parser.add_argument(
-        '--gal_ref_seed', default=15,
+        '--ref_seed', default=15,
         help='The seed for the random generator that chooses the validation '
         'samples to use as reference in the gallery.',
         type=int
@@ -353,7 +353,7 @@ if __name__ == '__main__':
     )
 
     parser.add_argument(
-        '--square_size',
+        '--size',
         default=224,
         help='The size to use in the data transform pipeline.',
         type=int,
@@ -406,18 +406,18 @@ if __name__ == '__main__':
         weight_decay=args.weight_decay,
         lr_warmup_steps=args.lr_warmup_steps,
 
-        square_size=args.square_size,
+        size=args.size,
         rrc_scale=args.rrc_scale,
         rrc_ratio=args.rrc_ratio,
         norm_mean=args.norm_mean,
         norm_std=args.norm_std,
         use_three_crop=args.use_three_crop,
 
-        gal_num_refs=args.gal_num_refs,
-        gal_ref_seed=args.gal_ref_seed,
-        val_fold=args.k_fold_val_fold,
-        num_folds=args.k_fold_num_folds,
-        fold_seed=args.k_fold_seed,
+        num_refs=args.num_refs,
+        ref_seed=args.ref_seed,
+        val_fold=args.val_fold,
+        num_folds=args.num_folds,
+        fold_seed=args.fold_seed,
         train_csv=args.data_csv,
         label_key=args.data_label_key,
         image_key=args.data_image_key,
