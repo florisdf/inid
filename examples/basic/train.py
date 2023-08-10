@@ -191,16 +191,16 @@ def validation_epoch(
     ckpt_path: Path,
 ):
     # Compute score matrix and corresponding labels
-    scores, quer_labels, gal_labels = score_matrix(
+    scores, gal_labels, quer_labels = score_matrix(
         model,
-        device,
         dl_val_gal,
         dl_val_quer,
+        device=device,
     )
 
     # Log validation metrics
     wandb.log({
-        'Val/Accuracy': accuracy(scores, quer_labels, gal_labels),
+        'Val/Accuracy': accuracy(scores, gal_labels, quer_labels),
         "epoch": epoch_idx,
     })
 

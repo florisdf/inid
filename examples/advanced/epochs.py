@@ -80,44 +80,45 @@ def validation_epoch(
     get_embeddings_fn: Optional[Callable] = None
 ):
     # Compute score matrix and corresponding labels
-    scores, quer_labels, gal_labels = score_matrix(
+    scores, gal_labels, quer_labels = score_matrix(
         model,
-        device,
         dl_val_gal,
         dl_val_quer,
+        device=device,
         get_embeddings_fn=get_embeddings_fn,
     )
     # Compute score matrix and corresponding labels when using average
     # reference embeddings in the gallery
-    scores_avg_refs, _, gal_labels_avg_refs = score_matrix(
+    scores_avg_refs, gal_labels_avg_refs, _ = score_matrix(
         model,
-        device,
         dl_val_gal,
         dl_val_quer,
+        device=device,
         get_embeddings_fn=get_embeddings_fn,
         agg_gal_fn=avg_ref_embs
     )
 
     # Compute PR metrics (only for non-aggregated refs)
-    val_log_dict = pr_metrics(scores, quer_labels, gal_labels)
+    val_log_dict = pr_metrics(scores, gal_labels, quer_labels)
 
     # Compute top-1 accuracy
     val_log_dict.update({
-        'Accuracy': accuracy(scores, quer_labels, gal_labels)
+        'Accuracy': accuracy(scores, gal_labels, quer_labels)
     })
     val_log_dict_avg_refs = {
-        'Accuracy (avg refs)': accuracy(scores_avg_refs, quer_labels,
-                                        gal_labels_avg_refs)
+        'Accuracy (avg refs)': accuracy(scores_avg_refs, gal_labels_avg_refs,
+                                        quer_labels)
     }
 
     # Compute distribution of hard positive and negative similarities
     val_log_dict.update(
-        hard_pos_neg_scores(scores, quer_labels, gal_labels)
+        hard_pos_neg_scores(scores, gal_labels, quer_labels)
     )
     val_log_dict_avg_refs.update({
         f'{k} (avg refs)': v
-        for k, v in hard_pos_neg_scores(scores_avg_refs, quer_labels,
-                                        gal_labels_avg_refs).items()
+        for k, v in hard_pos_neg_scores(scores_avg_refs,
+                                        gal_labels_avg_refs,
+                                        quer_labels).items()
     })
 
     # Log validation metrics
