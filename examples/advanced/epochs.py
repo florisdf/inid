@@ -9,7 +9,7 @@ from torch.optim.lr_scheduler import LRScheduler
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from recognite.eval import accuracy, pr_metrics, hard_pos_neg_scores,\
+from recognite.eval import accuracy, pr_metrics, pos_neg_scores,\
     score_matrix
 from recognite.utils import RunningExtrema, avg_ref_embs
 
@@ -110,15 +110,15 @@ def validation_epoch(
                                         quer_labels)
     }
 
-    # Compute distribution of hard positive and negative similarities
+    # Compute distribution of positive and negative pair similarities
     val_log_dict.update(
-        hard_pos_neg_scores(scores, gal_labels, quer_labels)
+        pos_neg_scores(scores, gal_labels, quer_labels)
     )
     val_log_dict_avg_refs.update({
         f'{k} (avg refs)': v
-        for k, v in hard_pos_neg_scores(scores_avg_refs,
-                                        gal_labels_avg_refs,
-                                        quer_labels).items()
+        for k, v in pos_neg_scores(scores_avg_refs,
+                                   gal_labels_avg_refs,
+                                   quer_labels).items()
     })
 
     # Log validation metrics
