@@ -14,8 +14,8 @@ from tqdm import tqdm
 import wandb
 
 from recognite.model import Recognizer, SUPPORTED_MODELS
-from recognite.data import train_val_datasets
-from recognite.eval import accuracy, score_matrix
+from recognite.data import get_train_val_datasets
+from recognite.eval import get_accuracy, get_score_matrix
 
 
 NORM_MEAN = [0.485, 0.456, 0.406]
@@ -60,7 +60,7 @@ def run_training(
         Normalize(mean=NORM_MEAN, std=NORM_STD)
     ])
 
-    ds_train, ds_gal, ds_quer = train_val_datasets(
+    ds_train, ds_gal, ds_quer = get_train_val_datasets(
         data_csv_file=data_csv,
         image_key=IMAGE_KEY,
         label_key=LABEL_KEY,
@@ -191,7 +191,7 @@ def validation_epoch(
     ckpt_path: Path,
 ):
     # Compute score matrix and corresponding labels
-    scores, gal_labels, quer_labels = score_matrix(
+    scores, gal_labels, quer_labels = get_score_matrix(
         model,
         dl_val_gal,
         dl_val_quer,
@@ -200,7 +200,7 @@ def validation_epoch(
 
     # Log validation metrics
     wandb.log({
-        'Val/Accuracy': accuracy(scores, gal_labels, quer_labels),
+        'Val/Accuracy': get_accuracy(scores, gal_labels, quer_labels),
         "epoch": epoch_idx,
     })
 

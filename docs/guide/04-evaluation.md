@@ -4,9 +4,9 @@ With the training [dataset](./02-data) and the [model](./03-model) defined, we c
 
 
 ```{eval-rst}
-Whatever training methodology you choose, at some point, you'll want to measure how well your model performs on data outside of the training set. For this, Recognite provides multiple utilities. As we have seen, :func:`recognite.data.train_val_datasets`, returns not only a training dataset, but also a *gallery* and a *query* set that can be used for evaluation. The idea is that we classify the query samples by comparing their embeddings with the embeddings the model computes for the gallery samples.
+Whatever training methodology you choose, at some point, you'll want to measure how well your model performs on data outside of the training set. For this, Recognite provides multiple utilities. As we have seen, :func:`recognite.data.get_train_val_datasets`, returns not only a training dataset, but also a *gallery* and a *query* set that can be used for evaluation. The idea is that we classify the query samples by comparing their embeddings with the embeddings the model computes for the gallery samples.
 
-The classification of the query samples happens by computing a pairwise cosine similarity matrix between each query embedding and each gallery embedding. To do this, you can use the function :func:`recognite.eval.score_matrix`. This function expects a `PyTorch DataLoader <https://pytorch.org/docs/stable/data.html>`_ for both the gallery and the query datasets. So, somewhere in your code, you'll first need to do something like:
+The classification of the query samples happens by computing a pairwise cosine similarity matrix between each query embedding and each gallery embedding. To do this, you can use the function :func:`recognite.eval.get_score_matrix`. This function expects a `PyTorch DataLoader <https://pytorch.org/docs/stable/data.html>`_ for both the gallery and the query datasets. So, somewhere in your code, you'll first need to do something like:
 ```
 
 ```python
@@ -30,9 +30,9 @@ dl_val_quer = DataLoader(
 Then, later, somewhere in your validation loop, you can run:
 
 ```python
-from recognite.eval import score_matrix
+from recognite.eval import get_score_matrix
 
-scores, gal_labels, quer_labels = score_matrix(
+scores, gal_labels, quer_labels = get_score_matrix(
     model=recog_model,
     dl_gal=dl_val_gal,
     dl_quer=dl_val_quer
@@ -48,19 +48,23 @@ There are some extra optional arguments, but we'll defer the discussion of these
 With these scores and labels, we can go ahead and compute some informative metrics:
 
 ```python
-from recognite.eval import accuracy, top_k_accuracy, hard_pos_neg_scores, pr_metrics
+from recognite.eval import get_accuracy, get_top_k_accuracy,\
+    get_pos_neg_scores, get_hard_pos_neg_scores, get_pr_metrics
 
 # The top-1 accuracy
-acc = accuracy(scores, gal_labels, quer_labels)
+acc = get_accuracy(scores, gal_labels, quer_labels)
 
 # The top-5 accuracy
 top5_acc = top_k_accuracy(scores, gal_labels, quer_labels, k=5)
 
 # PR curves, APs, mAP,...
-prs = pr_metrics(scores, gal_labels, quer_labels)
+prs = get_pr_metrics(scores, gal_labels, quer_labels)
+
+# Score for the positive and negative pairs
+pn_scores = get_pos_neg_scores(scores, gal_labels, quer_labels)
 
 # Scores for the hardest positives and negatives
-hpn_scores = hard_pos_neg_scores(scores, gal_labels, quer_labels)
+hpn_scores = get_hard_pos_neg_scores(scores, gal_labels, quer_labels)
 ```
 
 For more information about these metrics, we refer to the corresponding docs:
@@ -72,8 +76,9 @@ For more information about these metrics, we refer to the corresponding docs:
 .. autosummary::
    :nosignatures:
 
-   accuracy
-   hard_pos_neg_scores
-   pr_metrics
-   top_k_accuracy
+   get_accuracy
+   get_hard_pos_neg_scores
+   get_pos_neg_scores
+   get_pr_metrics
+   get_top_k_accuracy
 ```

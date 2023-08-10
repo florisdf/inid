@@ -4,17 +4,17 @@
 ## Average reference embeddings
 
 ```{eval-rst}
-When using a gallery with multiple reference images per label, the classification of incoming queries might be improved by comparing the query embeddings with the *averages* of the embeddings per label, instead of the individual embeddings. To do this, you can pass :func:`recognite.utils.avg_ref_embs` for the argument ``agg_gal_fn`` of :func:`recognite.eval.score_matrix`:
+When using a gallery with multiple reference images per label, the classification of incoming queries might be improved by comparing the query embeddings with the *averages* of the embeddings per label, instead of the individual embeddings. To do this, you can pass :func:`recognite.utils.avg_ref_embs` for the argument ``agg_gal_fn`` of :func:`recognite.eval.get_score_matrix`:
 ```
 
 ```{code-block} python
 ---
 emphasize-lines: 9
 ---
-from recognite.eval import score_matrix
+from recognite.eval import get_score_matrix
 from reconite.utils import avg_ref_embs
 
-scores, gal_labels, quer_labels = score_matrix(
+scores, gal_labels, quer_labels = get_score_matrix(
     model=recog_model,
     dl_gal=dl_val_gal,
     dl_quer=dl_val_quer,
@@ -85,9 +85,9 @@ The model does not expect the extra dimension of the three-crops. We should resh
 
 ```{code-block} python
 from recognite.utils import get_embeddings_three_crops
-from recognite.eval import score_matrix
+from recognite.eval import get_score_matrix
 
-scores, gal_labels, quer_labels = score_matrix(
+scores, gal_labels, quer_labels = get_score_matrix(
     model=recog_model,
     dl_gal=dl_val_gal,
     dl_quer=dl_val_quer,

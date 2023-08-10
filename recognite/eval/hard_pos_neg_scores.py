@@ -5,7 +5,7 @@ from torch import Tensor
 import math
 
 
-def hard_pos_neg_scores(
+def get_hard_pos_neg_scores(
     scores: Tensor,
     gallery_labels: Tensor,
     query_labels: Tensor,

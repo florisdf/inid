@@ -2,12 +2,12 @@ import pandas as pd
 from PIL import Image
 import pytest
 
-from recognite.data import train_val_datasets
+from recognite.data import get_train_val_datasets
 
 
 def test_no_overlaps(dummy_dataset):
     df_all, ds_kwargs = dummy_dataset
-    ds_train, ds_val_gal, ds_val_quer = train_val_datasets(**ds_kwargs)
+    ds_train, ds_val_gal, ds_val_quer = get_train_val_datasets(**ds_kwargs)
 
     for image in ds_train.df['my_image']:
         assert image not in ds_val_gal.df['my_image'].values
@@ -16,7 +16,7 @@ def test_no_overlaps(dummy_dataset):
 
 def test_complete(dummy_dataset):
     df_all, ds_kwargs = dummy_dataset
-    ds_train, ds_val_gal, ds_val_quer = train_val_datasets(**ds_kwargs)
+    ds_train, ds_val_gal, ds_val_quer = get_train_val_datasets(**ds_kwargs)
 
     ret_df_train_val = pd.concat(
         [ds_train.df, ds_val_gal.df, ds_val_quer.df]
@@ -30,7 +30,7 @@ def test_num_refs(dummy_dataset):
 
     ds_kwargs['num_refs'] = 2
     ds_kwargs['num_folds'] = 3
-    ds_train, ds_val_gal, ds_val_quer = train_val_datasets(**ds_kwargs)
+    ds_train, ds_val_gal, ds_val_quer = get_train_val_datasets(**ds_kwargs)
 
     assert len(ds_val_gal) == 2
 
@@ -41,12 +41,12 @@ def test_val_folds(dummy_dataset):
     del ds_kwargs['val_fold']
 
     ds_kwargs['num_folds'] = 3
-    _, ds_val_gal_0, ds_val_quer_0 = train_val_datasets(**ds_kwargs,
-                                                        val_fold=0)
-    _, ds_val_gal_1, ds_val_quer_1 = train_val_datasets(**ds_kwargs,
-                                                        val_fold=1)
-    _, ds_val_gal_2, ds_val_quer_2 = train_val_datasets(**ds_kwargs,
-                                                        val_fold=2)
+    _, ds_val_gal_0, ds_val_quer_0 = get_train_val_datasets(**ds_kwargs,
+                                                            val_fold=0)
+    _, ds_val_gal_1, ds_val_quer_1 = get_train_val_datasets(**ds_kwargs,
+                                                            val_fold=1)
+    _, ds_val_gal_2, ds_val_quer_2 = get_train_val_datasets(**ds_kwargs,
+                                                            val_fold=2)
 
     df_val_0 = pd.concat(
         [ds_val_gal_0.df, ds_val_quer_0.df]
@@ -68,7 +68,7 @@ def test_val_folds(dummy_dataset):
 
 def test_consistent_label_to_int(dummy_dataset):
     df_all, ds_kwargs = dummy_dataset
-    ds_train, ds_val_gal, ds_val_quer = train_val_datasets(**ds_kwargs)
+    ds_train, ds_val_gal, ds_val_quer = get_train_val_datasets(**ds_kwargs)
 
     for k, v in ds_val_gal.label_to_int.items():
         assert v == ds_val_quer.label_to_int[k]
@@ -92,8 +92,9 @@ def test_default_args(dummy_dataset_default):
         tfm_val=None,
     )
 
-    datasets_0 = train_val_datasets(ds_kwargs['data_csv_file'])
-    datasets = train_val_datasets(ds_kwargs['data_csv_file'], **exp_defaults)
+    datasets_0 = get_train_val_datasets(ds_kwargs['data_csv_file'])
+    datasets = get_train_val_datasets(ds_kwargs['data_csv_file'],
+                                      **exp_defaults)
 
     for ds_0, ds_1 in zip(datasets_0, datasets):
         assert (ds_0.df == ds_1.df).all().all()

@@ -19,9 +19,9 @@ It is entirely up to you how you structure your data and how you name the image 
 Let's say you have written your CSV file to `my_data.csv`. Then you can create training and validation datasets as follows:
 
 ```python
-from recognite.data import train_val_datasets
+from recognite.data import get_train_val_datasets
 
-ds_train, ds_val_gal, ds_val_quer = train_val_datasets(
+ds_train, ds_val_gal, ds_val_quer = get_train_val_datasets(
     'my_data.csv',      # Path to your CSV file
     image_key='image',  # The column containing the image paths
     label_key='label',  # The column containing the labels

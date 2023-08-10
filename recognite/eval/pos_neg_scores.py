@@ -3,7 +3,7 @@ from typing import Dict
 from torch import Tensor
 
 
-def pos_neg_scores(
+def get_pos_neg_scores(
     scores: Tensor,
     gallery_labels: Tensor,
     query_labels: Tensor,

@@ -12,7 +12,7 @@ from tqdm import tqdm
 import wandb
 
 from recognite.model import Recognizer, SUPPORTED_MODELS
-from recognite.data import train_val_datasets
+from recognite.data import get_train_val_datasets
 from recognite.utils import RunningExtrema, MAX, MIN,\
     collate_three_crops, embeddings_three_crops
 
@@ -71,7 +71,7 @@ def run_training(
         rrc_ratio=rrc_ratio,
         use_three_crop=use_three_crop,
     )
-    ds_train, ds_gal, ds_quer = train_val_datasets(
+    ds_train, ds_gal, ds_quer = get_train_val_datasets(
         data_csv_file=train_csv,
         image_key=image_key,
         label_key=label_key,

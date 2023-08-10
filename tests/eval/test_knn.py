@@ -1,6 +1,6 @@
 import torch
 
-from recognite.eval import top_k, knn
+from recognite.eval import get_top_k, knn
 
 
 def test_top_3():
@@ -26,7 +26,7 @@ def test_top_3():
         [3, 0, 1],
     ])
 
-    ret_scores, ret_labels = top_k(scores, gal_labels, k=3)
+    ret_scores, ret_labels = get_top_k(scores, gal_labels, k=3)
 
     assert (exp_scores == ret_scores).all()
     assert (exp_labels == ret_labels).all()

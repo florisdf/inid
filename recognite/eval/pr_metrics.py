@@ -4,7 +4,7 @@ import torch
 from torch import Tensor
 
 
-def pr_metrics(
+def get_pr_metrics(
     scores: Tensor,
     gallery_labels: Tensor,
     query_labels: Tensor

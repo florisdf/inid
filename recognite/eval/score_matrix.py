@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 
 @torch.no_grad()
-def score_matrix(
+def get_score_matrix(
     model: nn.Module,
     dl_gal: DataLoader,
     dl_quer: DataLoader,

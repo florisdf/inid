@@ -3,11 +3,11 @@ from typing import Callable, Optional, Tuple
 import pandas as pd
 
 from .gallery_query_split import split_gallery_query
-from .k_fold import k_fold_trainval_split
+from .k_fold import split_k_fold_train_val
 from .data_frame_dataset import DataFrameDataset
 
 
-def train_val_datasets(
+def get_train_val_datasets(
     data_csv_file: str,
     image_key: str = 'image',
     label_key: str = 'label',
@@ -73,7 +73,7 @@ def train_val_datasets(
     """
     df = pd.read_csv(data_csv_file)
 
-    df_train, df_val = k_fold_trainval_split(
+    df_train, df_val = split_k_fold_train_val(
         df=df, num_folds=num_folds, val_fold=val_fold,
         seed=fold_seed,
         label_key=label_key

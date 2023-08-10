@@ -1,6 +1,6 @@
 import pandas as pd
 
-from recognite.data import k_fold_trainval_split
+from recognite.data import split_k_fold_train_val
 
 
 def test_no_label_overlap():
@@ -15,7 +15,7 @@ def test_no_label_overlap():
         {'label': 'C', 'image': 'C_0002.jpg'},
         {'label': 'C', 'image': 'C_0003.jpg'},
     ])
-    df_train, df_val = k_fold_trainval_split(
+    df_train, df_val = split_k_fold_train_val(
         df,
         num_folds=3,
         val_fold=0,
@@ -38,21 +38,21 @@ def test_val_folds():
         {'label': 'C', 'image': 'C_0002.jpg'},
         {'label': 'C', 'image': 'C_0003.jpg'},
     ])
-    df_train_0, df_val_0 = k_fold_trainval_split(
+    df_train_0, df_val_0 = split_k_fold_train_val(
         df,
         num_folds=3,
         val_fold=0,
         seed=0,
         label_key='label'
     )
-    df_train_1, df_val_1 = k_fold_trainval_split(
+    df_train_1, df_val_1 = split_k_fold_train_val(
         df,
         num_folds=3,
         val_fold=1,
         seed=0,
         label_key='label'
     )
-    df_train_2, df_val_2 = k_fold_trainval_split(
+    df_train_2, df_val_2 = split_k_fold_train_val(
         df,
         num_folds=3,
         val_fold=2,
@@ -78,7 +78,7 @@ def test_num_labels_in_subsets():
         {'label': 'C', 'image': 'C_0002.jpg'},
         {'label': 'C', 'image': 'C_0003.jpg'},
     ])
-    df_train, df_val = k_fold_trainval_split(
+    df_train, df_val = split_k_fold_train_val(
         df,
         num_folds=3,
         val_fold=0,
@@ -101,7 +101,7 @@ def test_label_key():
         {'name': 'C', 'image': 'C_0002.jpg'},
         {'name': 'C', 'image': 'C_0003.jpg'},
     ])
-    df_train, df_val = k_fold_trainval_split(
+    df_train, df_val = split_k_fold_train_val(
         df,
         num_folds=3,
         val_fold=0,

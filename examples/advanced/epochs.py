@@ -9,8 +9,8 @@ from torch.optim.lr_scheduler import LRScheduler
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from recognite.eval import accuracy, pr_metrics, pos_neg_scores,\
-    score_matrix
+from recognite.eval import get_accuracy, get_pr_metrics, get_pos_neg_scores,\
+    get_score_matrix
 from recognite.utils import RunningExtrema, avg_ref_embs
 
 from log import log
@@ -80,7 +80,7 @@ def validation_epoch(
     get_embeddings_fn: Optional[Callable] = None
 ):
     # Compute score matrix and corresponding labels
-    scores, gal_labels, quer_labels = score_matrix(
+    scores, gal_labels, quer_labels = get_score_matrix(
         model,
         dl_val_gal,
         dl_val_quer,
@@ -89,7 +89,7 @@ def validation_epoch(
     )
     # Compute score matrix and corresponding labels when using average
     # reference embeddings in the gallery
-    scores_avg_refs, gal_labels_avg_refs, _ = score_matrix(
+    scores_avg_refs, gal_labels_avg_refs, _ = get_score_matrix(
         model,
         dl_val_gal,
         dl_val_quer,
@@ -99,26 +99,27 @@ def validation_epoch(
     )
 
     # Compute PR metrics (only for non-aggregated refs)
-    val_log_dict = pr_metrics(scores, gal_labels, quer_labels)
+    val_log_dict = get_pr_metrics(scores, gal_labels, quer_labels)
 
     # Compute top-1 accuracy
     val_log_dict.update({
-        'Accuracy': accuracy(scores, gal_labels, quer_labels)
+        'Accuracy': get_accuracy(scores, gal_labels, quer_labels)
     })
     val_log_dict_avg_refs = {
-        'Accuracy (avg refs)': accuracy(scores_avg_refs, gal_labels_avg_refs,
-                                        quer_labels)
+        'Accuracy (avg refs)': get_accuracy(scores_avg_refs,
+                                            gal_labels_avg_refs,
+                                            quer_labels)
     }
 
     # Compute distribution of positive and negative pair similarities
     val_log_dict.update(
-        pos_neg_scores(scores, gal_labels, quer_labels)
+        get_pos_neg_scores(scores, gal_labels, quer_labels)
     )
     val_log_dict_avg_refs.update({
         f'{k} (avg refs)': v
-        for k, v in pos_neg_scores(scores_avg_refs,
-                                   gal_labels_avg_refs,
-                                   quer_labels).items()
+        for k, v in get_pos_neg_scores(scores_avg_refs,
+                                       gal_labels_avg_refs,
+                                       quer_labels).items()
     })
 
     # Log validation metrics

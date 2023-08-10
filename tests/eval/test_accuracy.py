@@ -1,5 +1,5 @@
 import torch
-from recognite.eval import accuracy, top_k_accuracy
+from recognite.eval import get_accuracy, get_top_k_accuracy
 
 
 def test_perfect_accuracy():
@@ -23,7 +23,7 @@ def test_perfect_accuracy():
         0, 1, 2, 3
     ])
     exp_acc = 1.0
-    ret_acc = accuracy(scores, gallery_labels, query_labels)
+    ret_acc = get_accuracy(scores, gallery_labels, query_labels)
     assert exp_acc == ret_acc
 
 
@@ -48,7 +48,7 @@ def test_worst_accuracy():
         0, 1, 2, 3
     ])
     exp_acc = 0.0
-    ret_acc = accuracy(scores, gallery_labels, query_labels)
+    ret_acc = get_accuracy(scores, gallery_labels, query_labels)
     assert exp_acc == ret_acc
 
 
@@ -73,7 +73,7 @@ def test_midway_accuracy():
         0, 1, 2, 3
     ])
     exp_acc = 0.5
-    ret_acc = accuracy(scores, gallery_labels, query_labels)
+    ret_acc = get_accuracy(scores, gallery_labels, query_labels)
     assert exp_acc == ret_acc
 
 
@@ -98,5 +98,5 @@ def test_perfect_top_2_accuracy():
         0, 1, 2, 3
     ])
     exp_acc = 1.0
-    ret_acc = top_k_accuracy(scores, gallery_labels, query_labels, k=2)
+    ret_acc = get_top_k_accuracy(scores, gallery_labels, query_labels, k=2)
     assert exp_acc == ret_acc

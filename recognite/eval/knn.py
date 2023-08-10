@@ -25,11 +25,11 @@ def knn(
     Returns:
         The result of the k-NN classification for each query.
     """
-    top_k_scores, top_k_labels = top_k(scores, gallery_labels, k)
+    top_k_scores, top_k_labels = get_top_k(scores, gallery_labels, k)
     return torch.mode(top_k_labels)[0]
 
 
-def top_k(
+def get_top_k(
     scores: torch.Tensor,
     gallery_labels: torch.Tensor,
     k: int

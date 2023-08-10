@@ -1,6 +1,6 @@
 import torch
 
-from recognite.eval import hard_pos_neg_scores
+from recognite.eval import get_hard_pos_neg_scores
 
 
 def test_hard_pos_neg_scores():
@@ -19,6 +19,6 @@ def test_hard_pos_neg_scores():
         'HardPosScores': torch.tensor([0.1, 0.3]),
         'HardNegScores': torch.tensor([0.2, 0.4]),
     }
-    ret = hard_pos_neg_scores(scores, gallery_labels, query_labels)
+    ret = get_hard_pos_neg_scores(scores, gallery_labels, query_labels)
     assert all(exp['HardPosScores'] == ret['HardPosScores'])
     assert all(exp['HardNegScores'] == ret['HardNegScores'])

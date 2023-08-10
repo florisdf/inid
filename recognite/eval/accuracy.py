@@ -1,10 +1,10 @@
 import torch
 from torch import Tensor
 
-from .knn import top_k
+from .knn import get_top_k
 
 
-def accuracy(
+def get_accuracy(
     scores: Tensor,
     gallery_labels: Tensor,
     query_labels: Tensor
@@ -24,10 +24,10 @@ def accuracy(
     Returns:
         The top-1 accuracy.
     """
-    return top_k_accuracy(scores, gallery_labels, query_labels, k=1)
+    return get_top_k_accuracy(scores, gallery_labels, query_labels, k=1)
 
 
-def top_k_accuracy(
+def get_top_k_accuracy(
     scores: Tensor,
     gallery_labels: Tensor,
     query_labels: Tensor,
@@ -48,11 +48,11 @@ def top_k_accuracy(
     Returns:
         The top-k accuracy.
     """
-    _, top_k_labels = top_k(scores, gallery_labels, k)
-    return _top_all_accuracy(query_labels, top_k_labels)
+    _, top_k_labels = get_top_k(scores, gallery_labels, k)
+    return _get_top_all_accuracy(query_labels, top_k_labels)
 
 
-def _top_all_accuracy(
+def _get_top_all_accuracy(
     query_labels: Tensor,
     top_all_labels: Tensor
 ):

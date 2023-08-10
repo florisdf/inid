@@ -1,6 +1,6 @@
 import torch
 
-from recognite.eval import pr_metrics
+from recognite.eval import get_pr_metrics
 
 
 def test_best_pr_metrics():
@@ -53,7 +53,7 @@ def test_best_pr_metrics():
         ]),
     }
 
-    ret = pr_metrics(scores, gallery_labels, query_labels)
+    ret = get_pr_metrics(scores, gallery_labels, query_labels)
     _assert_equal(exp, ret)
 
 
@@ -107,7 +107,7 @@ def test_bad_pr_metrics():
         ]),
     }
 
-    ret = pr_metrics(scores, gallery_labels, query_labels)
+    ret = get_pr_metrics(scores, gallery_labels, query_labels)
     _assert_equal(exp, ret)
 
 

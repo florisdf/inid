@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 
-def k_fold_trainval_split(
+def split_k_fold_train_val(
     df: pd.DataFrame,
     num_folds: int = 5,
     val_fold: int = 0,

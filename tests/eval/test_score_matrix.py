@@ -3,7 +3,7 @@ import math
 import pytest
 import torch
 
-from recognite.eval import score_matrix
+from recognite.eval import get_score_matrix
 
 
 @pytest.fixture()
@@ -43,7 +43,7 @@ def test_get_score_matrix(score_matrix_args):
     ])
     exp_g_labels = torch.tensor([0, 1])
 
-    ret_scores, ret_g_labels, ret_q_labels = score_matrix(
+    ret_scores, ret_g_labels, ret_q_labels = get_score_matrix(
         model,
         device='cpu',
         dl_gal=dl_gal,
@@ -65,7 +65,7 @@ def test_get_score_matrix_inner(score_matrix_args):
         [0.0,  0.0],
     ])
 
-    ret_scores, _, _ = score_matrix(
+    ret_scores, _, _ = get_score_matrix(
         model,
         metric='inner',
         device='cpu',
@@ -86,7 +86,7 @@ def test_get_score_matrix_cosine(score_matrix_args):
         [0.0,  0.0],
     ])
 
-    ret_scores, _, _ = score_matrix(
+    ret_scores, _, _ = get_score_matrix(
         model,
         metric='cosine',
         device='cpu',
@@ -107,7 +107,7 @@ def test_get_score_matrix_euclid(score_matrix_args):
         [math.sqrt(8), math.sqrt(8)],
     ])
 
-    ret_scores, _, _ = score_matrix(
+    ret_scores, _, _ = get_score_matrix(
         model,
         metric='euclid',
         device='cpu',
@@ -128,7 +128,7 @@ def test_get_score_matrix_sq_euclid(score_matrix_args):
         [8, 8],
     ])
 
-    ret_scores, _, _ = score_matrix(
+    ret_scores, _, _ = get_score_matrix(
         model,
         metric='sq_euclid',
         device='cpu',
@@ -145,7 +145,7 @@ def test_device_default_cpu(score_matrix_args):
     old_fn = torch.cuda.is_available
     torch.cuda.is_available = lambda: False
 
-    ret_scores, ret_g_labels, ret_q_labels = score_matrix(
+    ret_scores, ret_g_labels, ret_q_labels = get_score_matrix(
         model,
         dl_gal=dl_gal,
         dl_quer=dl_quer
@@ -165,7 +165,7 @@ def test_device_default_cpu(score_matrix_args):
 def test_device_default_cuda(score_matrix_args):
     dl_gal, dl_quer, model = score_matrix_args
 
-    ret_scores, ret_g_labels, ret_q_labels = score_matrix(
+    ret_scores, ret_g_labels, ret_q_labels = get_score_matrix(
         model,
         dl_gal=dl_gal,
         dl_quer=dl_quer
