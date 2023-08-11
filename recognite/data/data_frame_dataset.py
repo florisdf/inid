@@ -33,15 +33,18 @@ class DataFrameDataset(Dataset):
     def __init__(
         self,
         df: pd.DataFrame,
-        label_key: str,
-        image_key: str,
-        label_to_int: Dict[str, int],
+        label_key: str = 'label',
+        image_key: str = 'image',
+        label_to_int: Dict[str, int] = None,
         transform: Optional[Callable] = None,
     ):
         self.df = df
         self.transform = transform
         self.label_key = label_key
         self.image_key = image_key
+
+        if label_to_int is None:
+            label_to_int = {l: i for i, l in enumerate(df[label_key].unique())}
         self.label_to_int = label_to_int
         self.unique_labels = set(self.label_to_int.keys())
 
