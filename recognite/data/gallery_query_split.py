@@ -53,7 +53,7 @@ def split_gallery_query(
         )
         logging.debug(
             f'Labels without less than {num_refs} (num_refs) samples: '
-            ', '.join(undersampled_labels)
+            ', '.join([str(label) for label in undersampled_labels])
         )
 
     gal_mask = df.index.isin(gal_idxs)
