@@ -26,6 +26,7 @@ def test_data_frame_dataset_with_label_to_int(tmp_path):
                           label_to_int=label_to_int, transform=None)
 
     assert ds.unique_labels == {'A', 'B'}
+    assert ds.num_classes == 2
 
     assert len(ds) == len(df)
 
@@ -54,6 +55,7 @@ def test_data_frame_dataset_default_args(tmp_path):
     ds = DataFrameDataset(df)
 
     assert ds.unique_labels == {'A', 'B'}
+    assert ds.num_classes == 2
 
     assert len(ds) == len(df)
 

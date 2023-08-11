@@ -25,7 +25,7 @@ from recognite.model import Recognizer
 
 recog_model = Recognizer(
     model_name='resnet50',
-    num_classes=len(ds_train.unique_labels),
+    num_classes=ds_train.num_classes,
     weights='DEFAULT',
     bias=False
 )
@@ -35,7 +35,7 @@ Let's discuss the arguments:
 
 ```{eval-rst}
 - With ``model_name``, you choose the architecture on which the :class:`Recognizer<recognite.model.Recognizer>` should be based. **We support about 80 different architectures** from the `models implemented in TorchVision <https://pytorch.org/vision/main/models.html>`_: classics like AlexNet, GoogLeNet, VGG, Inception, ResNet, but also more recent models like ResNeXt, EfficientNet, and even transformer-based models like ViT and SwinTransformer. For a full list of the supported architectures, see :const:`recognite.model.SUPPORTED_MODELS`.
-- ``num_classes`` tells the model how much output neurons the classifier (used for training) should have. If you created a training dataset ``ds_train`` with :func:`recognite.data.get_train_val_datasets`, as we did above, you can just pass in ``len(ds_train.unique_labels)``.
+- ``num_classes`` tells the model how much output neurons the classifier (used for training) should have. If you created a training dataset ``ds_train`` with :func:`recognite.data.get_train_val_datasets`, as we did above, you can just pass in ``ds_train.num_classes``.
 - With the ``weights`` argument, you define the pretrained weights to load into the model, if any. This can be any of the weights defined for your chosen model in the `Multi-weight support API <https://pytorch.org/blog/introducing-torchvision-new-multi-weight-support-api/>`_ of TorchVision.
 - Finally, with the ``bias`` argument, you can choose to turn on the bias. We suggest to keep it off, however (the default).
 ```

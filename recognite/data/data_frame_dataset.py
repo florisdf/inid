@@ -48,6 +48,10 @@ class DataFrameDataset(Dataset):
         self.label_to_int = label_to_int
         self.unique_labels = set(self.label_to_int.keys())
 
+    @property
+    def num_classes(self):
+        return len(self.unique_labels)
+
     def __len__(self):
         return len(self.df)
 

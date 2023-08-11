@@ -99,7 +99,7 @@ def run_training(
     # Create model
     model = Recognizer(
         model_name=model_name,
-        num_classes=len(ds_train.unique_labels),
+        num_classes=ds_train.num_classes,
         weights=model_weights
     )
     model = model.to(device)
